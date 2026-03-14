@@ -85,8 +85,22 @@ def fetch_from_hybird():
     if not token or not bs_id:
         return False, "API-token eller Breaker Set ID mangler"
 
+    # Detect auth type: if token looks like base64-encoded email:token, use Basic
+    # Otherwise use Bearer for raw API tokens
+    import base64
+    try:
+        decoded = base64.b64decode(token).decode('utf-8')
+        is_basic = ':' in decoded and '@' in decoded
+    except Exception:
+        is_basic = False
+
+    if is_basic:
+        auth_header = f"Basic {token}"
+    else:
+        auth_header = f"Bearer {token}"
+
     headers = {
-        "Authorization": f"Basic {token}",
+        "Authorization": auth_header,
         "Accept":        "application/json",
         "Content-Type":  "application/json",
     }
@@ -95,11 +109,8 @@ def fetch_from_hybird():
     config["sync_message"] = "Kontakter Hybird API..."
 
     try:
-        # Byg URL: med eller uden site_id
-        if site_id:
-            url = f"{base}/api/v1/sites/{site_id}/breaker_sets/{bs_id}.json"
-        else:
-            url = f"{base}/api/v1/breaker_sets/{bs_id}.json"
+        # Byg URL: breaker_sets endpoint direkte under /api/v1/
+        url = f"{base}/api/v1/breaker_sets/{bs_id}.json"
 
         r = req.get(url, headers=headers, timeout=10)
         r.raise_for_status()
