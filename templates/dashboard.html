@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hybird BMS — Live Dashboard</title>
+<title>Hybird BMS â Live Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -135,18 +135,18 @@ main{max-width:1400px;margin:0 auto;padding:24px 28px;}
 
 <main>
   <div class="kpi-strip">
-    <div class="kpi" style="--accent:var(--light-green)"><div class="kpi-label">Total Effekt</div><div class="kpi-value" id="kpi-power">—<span class="kpi-unit">W</span></div><div class="kpi-sub" id="kpi-power-sub">—</div></div>
-    <div class="kpi" style="--accent:var(--blue-grey)"><div class="kpi-label">Forbrug</div><div class="kpi-value" id="kpi-kwh">—<span class="kpi-unit">kWh</span></div><div class="kpi-sub">Seneste time</div></div>
-    <div class="kpi" style="--accent:var(--green-grey)"><div class="kpi-label">Sites</div><div class="kpi-value" id="kpi-sites">—</div><div class="kpi-sub" id="kpi-sites-sub">—</div></div>
-    <div class="kpi" style="--accent:var(--sand-dim)"><div class="kpi-label">Breakers</div><div class="kpi-value" id="kpi-breakers">—</div><div class="kpi-sub" id="kpi-breakers-sub">—</div></div>
+    <div class="kpi" style="--accent:var(--light-green)"><div class="kpi-label">Total Effekt</div><div class="kpi-value" id="kpi-power">â<span class="kpi-unit">W</span></div><div class="kpi-sub" id="kpi-power-sub">â</div></div>
+    <div class="kpi" style="--accent:var(--blue-grey)"><div class="kpi-label">Forbrug</div><div class="kpi-value" id="kpi-kwh">â<span class="kpi-unit">kWh</span></div><div class="kpi-sub">Seneste time</div></div>
+    <div class="kpi" style="--accent:var(--green-grey)"><div class="kpi-label">Sites</div><div class="kpi-value" id="kpi-sites">â</div><div class="kpi-sub" id="kpi-sites-sub">â</div></div>
+    <div class="kpi" style="--accent:var(--sand-dim)"><div class="kpi-label">Breakers</div><div class="kpi-value" id="kpi-breakers">â</div><div class="kpi-sub" id="kpi-breakers-sub">â</div></div>
     <div class="kpi" style="--accent:var(--orange)"><div class="kpi-label">Alarmer</div><div class="kpi-value" id="kpi-alerts">0</div><div class="kpi-sub">Aktive advarsler</div></div>
   </div>
 
-  <div class="panel map-panel"><div class="panel-hdr"><div class="panel-title">Oversigtskort — Sites</div><span class="panel-tag" id="map-tag">—</span></div><div id="map"></div></div>
+  <div class="panel map-panel"><div class="panel-hdr"><div class="panel-title">Oversigtskort â Sites</div><span class="panel-tag" id="map-tag">â</span></div><div id="map"></div></div>
 
   <div class="grid-main">
     <div class="panel">
-      <div class="panel-hdr"><div class="panel-title">Breakers — per-fase data</div><span class="panel-tag" id="breaker-count-tag">—</span></div>
+      <div class="panel-hdr"><div class="panel-title">Breakers â per-fase data</div><span class="panel-tag" id="breaker-count-tag">â</span></div>
       <div class="panel-body" style="padding:0;overflow-x:auto;">
         <table class="dev-table">
           <thead><tr><th>Navn / Site</th><th>Total W</th><th>L1 W</th><th>L1 V</th><th>L1 A</th><th>L2 W</th><th>L2 V</th><th>L2 A</th><th>L3 W</th><th>L3 V</th><th>L3 A</th><th>Temp</th><th>kWh</th></tr></thead>
@@ -161,7 +161,7 @@ main{max-width:1400px;margin:0 auto;padding:24px 28px;}
   </div>
 
   <div class="grid-bottom">
-    <div class="panel"><div class="panel-hdr"><div class="panel-title">Effekthistorik — per fase</div><span class="panel-tag" id="chart-tag">—</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="powerChart"></canvas></div></div></div>
+    <div class="panel"><div class="panel-hdr"><div class="panel-title">Effekthistorik â per fase</div><span class="panel-tag" id="chart-tag">â</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="powerChart"></canvas></div></div></div>
     <div class="panel"><div class="panel-hdr"><div class="panel-title">Fordeling nu</div><span class="panel-tag">Alle breakers</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="donutChart"></canvas></div></div></div>
   </div>
 </main>
@@ -180,12 +180,12 @@ function updateMap(sites){
     if(!s.lat||!s.lng)return;
     const lat=parseFloat(s.lat),lng=parseFloat(s.lng);
     if(isNaN(lat)||isNaN(lng))return;
-    const m=L.marker([lat,lng]).addTo(map).bindPopup('<b>'+s.name+'</b><br>'+(s.address||'')+'<br>Controllers: '+(s.controllers||[]).length);
+    const m=L.marker([lat,lng]).addTo(map).bindPopup(`<b>${s.name}</b><br>${s.address||''}<br>Controllers: ${(s.controllers||[]).length}`);
     markers.push(m);bounds.push([lat,lng]);
   });
   if(bounds.length>1)map.fitBounds(bounds,{padding:[40,40]});
   else if(bounds.length===1)map.setView(bounds[0],12);
-  document.getElementById('map-tag').textContent=bounds.length+' sites med GPS';
+  document.getElementById('map-tag').textContent=`${bounds.length} sites med GPS`;
 }
 
 const lineChart=new Chart(document.getElementById('powerChart'),{
@@ -226,14 +226,14 @@ async function loadConfig(){
 }
 
 function toggleAutoPoll(){autoPoll=!autoPoll;updateToggleUI();saveConfig();}
-function updateToggleUI(){document.getElementById('auto-toggle').className='toggle'+(autoPoll?' on':'');document.getElementById('auto-label').innerHTML='Auto-poll: <strong>'+(autoPoll?'ON':'OFF')+'<\/strong>';}
+function updateToggleUI(){document.getElementById('auto-toggle').className='toggle'+(autoPoll?' on':'');document.getElementById('auto-label').innerHTML=`Auto-poll: <strong>${autoPoll?'ON':'OFF'}</strong>`;}
 
 function setSyncStatus(s,msg){
   const pill=document.getElementById('sync-pill');pill.className='sync-pill '+s;
   pill.textContent={idle:'IDLE',syncing:'SYNCING...',ok:'OK',error:'FEJL'}[s]||s;
   document.getElementById('sync-msg').textContent=msg||'';
   const dot=document.getElementById('live-dot'),lbl=document.getElementById('live-label');
-  if(s==='ok'){dot.className='dot';lbl.textContent='LIVE \u2014 HYBIRD';}
+  if(s==='ok'){dot.className='dot';lbl.textContent='LIVE â HYBIRD';}
   else if(s==='error'){dot.className='dot red';lbl.textContent='FEJL';}
   else if(s==='syncing'){dot.className='dot';lbl.textContent='SYNCING...';}
   else{dot.className='dot grey';lbl.textContent='IDLE';}
@@ -251,13 +251,13 @@ async function refreshAll(){await Promise.all([refreshSummary(),refreshSites(),r
 
 async function refreshSummary(){
   const d=await(await fetch('/api/summary')).json();const pw=d.total_power_w||0;
-  document.getElementById('kpi-power').innerHTML=pw>1000?(pw/1000).toFixed(2)+'<span class="kpi-unit">kW<\/span>':pw.toFixed(0)+'<span class="kpi-unit">W<\/span>';
-  document.getElementById('kpi-power-sub').textContent=pw.toFixed(0)+' W total';
-  document.getElementById('kpi-kwh').innerHTML=(d.total_kwh||0).toFixed(2)+'<span class="kpi-unit">kWh<\/span>';
+  document.getElementById('kpi-power').innerHTML=pw>1000?`${(pw/1000).toFixed(2)}<span class="kpi-unit">kW</span>`:`${pw.toFixed(0)}<span class="kpi-unit">W</span>`;
+  document.getElementById('kpi-power-sub').textContent=`${pw.toFixed(0)} W total`;
+  document.getElementById('kpi-kwh').innerHTML=`${(d.total_kwh||0).toFixed(2)}<span class="kpi-unit">kWh</span>`;
   document.getElementById('kpi-sites').textContent=d.sites_count||0;
-  document.getElementById('kpi-sites-sub').textContent=(d.controllers_online||0)+'/'+(d.controllers_count||0)+' controllers online';
+  document.getElementById('kpi-sites-sub').textContent=`${d.controllers_online||0}/${d.controllers_count||0} controllers online`;
   document.getElementById('kpi-breakers').textContent=d.breakers_count||0;
-  document.getElementById('kpi-breakers-sub').textContent=(d.breaker_sets_count||0)+' breaker sets';
+  document.getElementById('kpi-breakers-sub').textContent=`${d.breaker_sets_count||0} breaker sets`;
   document.getElementById('kpi-alerts').textContent=d.alerts_count||0;
   if(d.last_sync)setSyncStatus(d.sync_status,d.sync_message);
 }
@@ -266,8 +266,8 @@ async function refreshSites(){updateMap(await(await fetch('/api/sites')).json())
 
 async function refreshBreakers(){
   const data=await(await fetch('/api/breakers')).json();const tbody=document.getElementById('breaker-tbody');tbody.innerHTML='';
-  if(!data.length){tbody.innerHTML='<tr><td colspan="13" class="no-data">Ingen data \u2014 konfigurer API og klik "Hent nu"<\/td><\/tr>';return;}
-  document.getElementById('breaker-count-tag').textContent=data.length+' breakers';
+  if(!data.length){tbody.innerHTML='<tr><td colspan="13" class="no-data">Ingen data â konfigurer API og klik "Hent nu"</td></tr>';return;}
+  document.getElementById('breaker-count-tag').textContent=`${data.length} breakers`;
   const maxPw=Math.max(...data.map(d=>d.consumption?.avg_total_active_power_w||0),1);
   data.forEach(b=>{
     const c=b.consumption||{},tw=c.avg_total_active_power_w||0,pct=Math.round((tw/maxPw)*100);
@@ -277,12 +277,12 @@ async function refreshBreakers(){
     const temp=c.avg_temperature_c||0,kwh=c.consumption_kwh||0;
     const tr=document.createElement('tr');tr.dataset.id=b.id;
     if(selectedBreaker===b.id)tr.classList.add('selected');
-    tr.innerHTML='<td><div class="dev-name">'+b.name+'<\/div><div class="dev-loc">'+(b.site_name||'')+'<\/div><\/td>'+
-      '<td><div class="pw-bar"><div class="pw-fill" style="width:'+pct+'%"><\/div><\/div>'+tw.toFixed(0)+'<\/td>'+
-      '<td><span class="phase-badge L1">L1<\/span> '+l1w.toFixed(0)+'<\/td><td>'+(l1v?l1v.toFixed(1):'-')+'<\/td><td>'+(l1a?l1a.toFixed(2):'-')+'<\/td>'+
-      '<td><span class="phase-badge L2">L2<\/span> '+l2w.toFixed(0)+'<\/td><td>'+(l2v?l2v.toFixed(1):'-')+'<\/td><td>'+(l2a?l2a.toFixed(2):'-')+'<\/td>'+
-      '<td><span class="phase-badge L3">L3<\/span> '+l3w.toFixed(0)+'<\/td><td>'+(l3v?l3v.toFixed(1):'-')+'<\/td><td>'+(l3a?l3a.toFixed(2):'-')+'<\/td>'+
-      '<td class="'+(temp>65?'temp-hi':'')+'">'+(temp?temp.toFixed(1)+'C':'-')+'<\/td><td>'+(kwh?kwh.toFixed(3):'-')+'<\/td>';
+    tr.innerHTML=`<td><div class="dev-name">${b.name}</div><div class="dev-loc">${b.site_name||''}</div></td>
+      <td><div class="pw-bar"><div class="pw-fill" style="width:${pct}%"></div></div>${tw.toFixed(0)}</td>
+      <td><span class="phase-badge L1">L1</span> ${l1w.toFixed(0)}</td><td>${l1v?l1v.toFixed(1):'-'}</td><td>${l1a?l1a.toFixed(2):'-'}</td>
+      <td><span class="phase-badge L2">L2</span> ${l2w.toFixed(0)}</td><td>${l2v?l2v.toFixed(1):'-'}</td><td>${l2a?l2a.toFixed(2):'-'}</td>
+      <td><span class="phase-badge L3">L3</span> ${l3w.toFixed(0)}</td><td>${l3v?l3v.toFixed(1):'-'}</td><td>${l3a?l3a.toFixed(2):'-'}</td>
+      <td class="${temp>65?'temp-hi':''}">${temp?temp.toFixed(1)+'C':'-'}</td><td>${kwh?kwh.toFixed(3):'-'}</td>`;
     tr.onclick=()=>selectBreaker(b.id,b.name);tbody.appendChild(tr);
   });
   const wp=data.filter(b=>(b.consumption?.avg_total_active_power_w||0)>0);
@@ -293,7 +293,7 @@ async function refreshBreakers(){
 async function selectBreaker(id,name){
   selectedBreaker=id;document.querySelectorAll('.dev-table tr').forEach(tr=>tr.classList.toggle('selected',tr.dataset.id===id));
   document.getElementById('chart-tag').textContent=name;
-  try{const hist=await(await fetch('/api/breakers/'+id+'/history?limit=48')).json();
+  try{const hist=await(await fetch(`/api/breakers/${id}/history?limit=48`)).json();
     lineChart.data.labels=hist.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});});
     lineChart.data.datasets[0].data=hist.map(h=>h.avg_total_active_power_w||0);
     lineChart.data.datasets[1].data=hist.map(h=>h.avg_phase_a_active_power_w||0);
@@ -304,17 +304,17 @@ async function selectBreaker(id,name){
 
 async function refreshAlerts(){
   const d=await(await fetch('/api/alerts')).json();const el=document.getElementById('alert-list');
-  if(!d.length){el.innerHTML='<div class="no-data">Ingen alarmer<\/div>';return;}
-  el.innerHTML=d.slice(-8).reverse().map(a=>'<div class="alert-item"><div style="flex-shrink:0;color:var(--orange);font-weight:700">!</div><div><div style="color:var(--dark-green)">'+a.device+' \u2014 '+a.msg+'<\/div><div style="font-size:10px;color:var(--muted)">'+new Date(a.time+'Z').toLocaleTimeString('da-DK')+'<\/div><\/div><\/div>').join('');
+  if(!d.length){el.innerHTML='<div class="no-data">Ingen alarmer</div>';return;}
+  el.innerHTML=d.slice(-8).reverse().map(a=>`<div class="alert-item"><div style="flex-shrink:0;color:var(--orange);font-weight:700">!</div><div><div style="color:var(--dark-green)">${a.device} â ${a.msg}</div><div style="font-size:10px;color:var(--muted)">${new Date(a.time+'Z').toLocaleTimeString('da-DK')}</div></div></div>`).join('');
 }
 
 async function refreshLog(){
   const d=await(await fetch('/api/synclog')).json();const el=document.getElementById('sync-log-list');
-  if(!d.length){el.innerHTML='<div class="no-data">Ingen kald endnu<\/div>';return;}
-  el.innerHTML=d.map(l=>'<div class="log-item"><span class="'+(l.ok?'log-ok':'log-err')+'">'+(l.ok?'OK':'X')+'<\/span><span class="log-ts">'+new Date(l.time+'Z').toLocaleTimeString('da-DK')+'<\/span><span style="color:var(--dark-green)">'+l.msg+'<\/span><\/div>').join('');
+  if(!d.length){el.innerHTML='<div class="no-data">Ingen kald endnu</div>';return;}
+  el.innerHTML=d.map(l=>`<div class="log-item"><span class="${l.ok?'log-ok':'log-err'}">${l.ok?'OK':'X'}</span><span class="log-ts">${new Date(l.time+'Z').toLocaleTimeString('da-DK')}</span><span style="color:var(--dark-green)">${l.msg}</span></div>`).join('');
 }
 
 (async()=>{await loadConfig();await refreshAll();setInterval(refreshAll,15000);})();
-<\/script>
+</script>
 </body>
 </html>
