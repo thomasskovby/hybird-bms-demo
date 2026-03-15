@@ -1,31 +1,30 @@
 #!/usr/bin/env python3
 """
-Hybird Mock CTS/BMS Server
-===========================
-Virtual Building Management System til demo og integration-test.
-Konfigurer Hybird API-forbindelsen direkte fra dashboardet.
+Hybird BMS Dashboard
+====================
+Building Management System dashboard der viser live data fra Hybird API.
+Konfigurer API-forbindelsen direkte fra dashboardet.
 """
 
 from flask import Flask, request, jsonify, render_template
 from datetime import datetime, timedelta
 import requests as req
-import random
 import threading
 import time
 import os
 
 app = Flask(__name__)
 
-# ── In-memory store ───────────────────────────────────────────────────
+# -- In-memory store ---
 devices   = {}   # breaker_id -> device info + latest reading
 history   = {}   # breaker_id -> [readings]
 alerts    = []
 sync_log  = []   # log af seneste API-kald
 
-# ── Live config (kan aendres fra UI uden restart) ─────────────────────
+# -- Live config (kan aendres fra UI uden restart) ---
 config = {
     "hybird_base_url":  "https://copi.hybird.energy",
-    "hybird_api_token": "",        # Basic auth token (base64)
+    "hybird_api_token": "",        # API token
     "site_id":          "",        # site id
     "breaker_set_id":   "",        # breaker_set_id
     "poll_interval_s":  30,
@@ -38,43 +37,7 @@ config = {
 MAX_HISTORY = 500   # pr. device
 MAX_ALERTS  = 100
 
-# ── Demo seed ─────────────────────────────────────────────────────────
-DEMO = [
-    {"id":"demo-001","name":"Ventilation Hoved","phase":"L1","location":"Kaelder","base_w":1800},
-    {"id":"demo-002","name":"Belysning Kontor","phase":"L2","location":"1. sal","base_w":450},
-    {"id":"demo-003","name":"Koekken Ovn","phase":"L3","location":"Koekken","base_w":3200},
-    {"id":"demo-004","name":"Fryserum","phase":"L1","location":"Lager","base_w":800},
-    {"id":"demo-005","name":"Varmepumpe","phase":"L2","location":"Tag","base_w":2400},
-]
-
-def _seed():
-    now = datetime.utcnow()
-    for d in DEMO:
-        devices[d["id"]] = {
-            "id":       d["id"],
-            "name":     d["name"],
-            "phase":    d["phase"],
-            "location": d["location"],
-            "source":   "demo",
-            "online":   True,
-        }
-        history[d["id"]] = []
-        for i in range(144):   # 10-min intervals, 24h
-            ts = now - timedelta(minutes=10*(144-i))
-            hr = ts.hour
-            fac = 0.25 if hr < 6 or hr > 22 else (1.0 if 8 <= hr <= 18 else 0.55)
-            pw = round(d["base_w"] * fac * random.uniform(0.88,1.12), 1)
-            history[d["id"]].append({
-                "timestamp": ts.isoformat(),
-                "power_w":   pw,
-                "voltage_v": round(random.uniform(228,232),1),
-                "current_a": round(pw/230,2),
-                "temp_c":    round(random.uniform(32,52),1),
-            })
-
-_seed()
-
-# ── Hybird API fetch ──────────────────────────────────────────────────
+# -- Hybird API fetch ---
 def fetch_from_hybird():
     """Hent live data fra Hybird API og gem i devices/history."""
     base      = config["hybird_base_url"].rstrip("/")
@@ -187,7 +150,7 @@ def fetch_from_hybird():
         config["sync_message"] = msg
         return False, msg
 
-# ── Background poller ─────────────────────────────────────────────────
+# -- Background poller ---
 def _poller():
     while True:
         if config["auto_poll"] and config["hybird_api_token"] and config["breaker_set_id"]:
@@ -196,7 +159,7 @@ def _poller():
 
 threading.Thread(target=_poller, daemon=True).start()
 
-# ── REST API ──────────────────────────────────────────────────────────
+# -- REST API ---
 @app.route("/")
 def index():
     return render_template("dashboard.html")
