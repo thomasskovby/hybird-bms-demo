@@ -3,138 +3,190 @@
 Hybird BMS Dashboard
 ====================
 Building Management System dashboard der viser live data fra Hybird API.
-Konfigurer API-forbindelsen direkte fra dashboardet.
+Henter sites, controllers, breaker sets og consumption data.
 """
 
 from flask import Flask, request, jsonify, render_template
-from datetime import datetime, timedelta
+from datetime import datetime
 import requests as req
 import threading
 import time
 import os
+import base64
 
 app = Flask(__name__)
 
-# -- In-memory store ---
-devices   = {}   # breaker_id -> device info + latest reading
-history   = {}   # breaker_id -> [readings]
-alerts    = []
-sync_log  = []   # log af seneste API-kald
+# ── In-memory store ───────────────────────────────────────────────────
+sites       = {}   # site_id -> {name, address, lat, lng, controllers: [...]}
+controllers = {}   # ctrl_id -> {name, site_id, last_seen}
+breaker_sets = {}  # bs_id -> {name, virtual_meter, breakers: [...]}
+breakers    = {}   # breaker_id -> {name, controller_id, bs_ids: [...]}
+readings    = {}   # breaker_id -> latest consumption data (per-fase)
+bs_readings = {}   # bs_id -> latest consumption data (aggregeret)
+history     = {}   # breaker_id -> [consumption entries]
+alerts      = []
+sync_log    = []
 
-# -- Live config (kan aendres fra UI uden restart) ---
+# ── Live config ───────────────────────────────────────────────────────
 config = {
-    "hybird_base_url":  "https://copi.hybird.energy",
-    "hybird_api_token": "",        # API token
-    "site_id":          "",        # site id
-    "breaker_set_id":   "",        # breaker_set_id
-    "poll_interval_s":  30,
+    "hybird_base_url":  "https://demo.hybird.energy",
+    "hybird_api_token": "",
+    "poll_interval_s":  60,
     "auto_poll":        False,
     "last_sync":        None,
-    "sync_status":      "idle",    # idle | syncing | ok | error
+    "sync_status":      "idle",
     "sync_message":     "",
 }
 
-MAX_HISTORY = 500   # pr. device
+MAX_HISTORY = 200
 MAX_ALERTS  = 100
 
-# -- Hybird API fetch ---
-def fetch_from_hybird():
-    """Hent live data fra Hybird API og gem i devices/history."""
-    base      = config["hybird_base_url"].rstrip("/")
-    token     = config["hybird_api_token"]
-    site_id   = config["site_id"].strip()
-    bs_id     = config["breaker_set_id"].strip()
-
-    if not token or not bs_id:
-        return False, "API-token eller Breaker Set ID mangler"
-
-    # Detect auth type: if token looks like base64-encoded email:token, use Basic
-    # Otherwise use Bearer for raw API tokens
-    import base64
+# ── Auth helper ───────────────────────────────────────────────────────
+def _auth_header(token):
     try:
         decoded = base64.b64decode(token).decode('utf-8')
-        is_basic = ':' in decoded and '@' in decoded
+        if ':' in decoded and '@' in decoded:
+            return f"Basic {token}"
     except Exception:
-        is_basic = False
+        pass
+    return f"Bearer {token}"
 
-    if is_basic:
-        auth_header = f"Basic {token}"
-    else:
-        auth_header = f"Bearer {token}"
-
-    headers = {
-        "Authorization": auth_header,
-        "Accept":        "application/json",
-        "Content-Type":  "application/json",
+def _headers(token):
+    return {
+        "Authorization": _auth_header(token),
+        "Accept": "application/json",
     }
 
+# ── API fetch ─────────────────────────────────────────────────────────
+def fetch_all():
+    """Hent alle data fra Hybird API."""
+    base  = config["hybird_base_url"].rstrip("/")
+    token = config["hybird_api_token"]
+    if not token:
+        return False, "API-token mangler"
+
+    hdrs = _headers(token)
     config["sync_status"]  = "syncing"
-    config["sync_message"] = "Kontakter Hybird API..."
+    config["sync_message"] = "Henter data fra Hybird API..."
+    now = datetime.utcnow().isoformat()
 
     try:
-        # Hent breakers for dette breaker set (JSON:API format)
-        url = f"{base}/api/v1/breaker_sets/{bs_id}/breakers.json"
-
-        r = req.get(url, headers=headers, timeout=10)
+        # 1) Hent sites med GPS
+        r = req.get(f"{base}/api/v1/sites.json", headers=hdrs, timeout=10)
         r.raise_for_status()
-        resp = r.json()
-
-        # JSON:API: data[] = breakers, included[] = latest_measurements
-        breaker_list = resp.get("data", [])
-        included = resp.get("included", [])
-
-        # Byg lookup for measurements: breaker_id -> measurement attributes
-        measurements = {}
-        for inc in included:
-            if inc.get("type") == "breaker_latest_measurement":
-                measurements[str(inc.get("id", ""))] = inc.get("attributes", {})
-
-        fetched = 0
-        now = datetime.utcnow().isoformat()
-
-        for b in breaker_list:
-            bid  = str(b.get("id", ""))
-            attrs = b.get("attributes", {})
-            name = attrs.get("name") or f"Breaker {bid}"
-            if not bid:
-                continue
-
-            # Hent measurement data fra included
-            meas = measurements.get(bid, {})
-            pw   = float(meas.get("total_active_power_w") or 0)
-            volt = float(meas.get("phase_a_voltage_v") or 230)
-            amp  = float(meas.get("phase_a_current_a") or pw/max(volt,1))
-            temp = float(meas.get("temperature_c") or 0)
-            state = meas.get("state", "unknown")
-
-            if bid not in devices:
-                devices[bid] = {
-                    "id":       bid,
-                    "name":     name,
-                    "phase":    "L1",
-                    "location": bs_id,
-                    "source":   "hybird",
-                    "online":   state != "offline",
-                }
-                history[bid] = []
-
-            reading = {
-                "timestamp": meas.get("measured_at", now),
-                "power_w":   pw,
-                "voltage_v": volt,
-                "current_a": amp,
-                "temp_c":    temp,
+        for s in r.json().get("data", []):
+            a = s.get("attributes", {})
+            sites[s["id"]] = {
+                "id":      s["id"],
+                "name":    a.get("name", ""),
+                "address": a.get("address", ""),
+                "lat":     a.get("latitude"),
+                "lng":     a.get("longitude"),
+                "controllers": [],
             }
-            devices[bid].update({"online": state != "offline", "last_seen": now, "name": name})
-            history[bid].append(reading)
-            if len(history[bid]) > MAX_HISTORY:
-                history[bid] = history[bid][-MAX_HISTORY:]
-            if temp > 70:
-                alerts.append({"time":now,"device":name,"msg":f"Hoej temp: {temp} grader C","level":"warning"})
-            fetched += 1
 
-        msg = f"OK — {fetched} maelere hentet fra {url}"
-        sync_log.insert(0, {"time":now,"msg":msg,"ok":True})
+        # 2) Hent controllers (med online-status)
+        r = req.get(f"{base}/api/v1/controllers.json", headers=hdrs, timeout=10)
+        r.raise_for_status()
+        for c in r.json().get("data", []):
+            a = c.get("attributes", {})
+            ctrl_id = c["id"]
+            site_rel = c.get("relationships", {}).get("site", {}).get("data", {})
+            site_id = str(site_rel.get("id", "")) if site_rel else ""
+            controllers[ctrl_id] = {
+                "id":        ctrl_id,
+                "name":      a.get("name", ""),
+                "site_id":   site_id,
+                "last_seen": a.get("last_seen_at"),
+            }
+            if site_id in sites:
+                if ctrl_id not in sites[site_id]["controllers"]:
+                    sites[site_id]["controllers"].append(ctrl_id)
+
+        # 3) Hent alle breaker sets
+        r = req.get(f"{base}/api/v1/breaker_sets.json", headers=hdrs, timeout=10)
+        r.raise_for_status()
+        for bs in r.json().get("data", []):
+            a = bs.get("attributes", {})
+            breaker_sets[bs["id"]] = {
+                "id":            bs["id"],
+                "name":          a.get("name", ""),
+                "virtual_meter": a.get("virtual_meter", False),
+                "breakers":      [],
+            }
+
+        # 4) Hent breakers for hvert breaker set
+        for bs_id in list(breaker_sets.keys()):
+            try:
+                r = req.get(f"{base}/api/v1/breaker_sets/{bs_id}/breakers.json",
+                            headers=hdrs, timeout=10)
+                r.raise_for_status()
+                for b in r.json().get("data", []):
+                    bid = b["id"]
+                    a = b.get("attributes", {})
+                    ctrl_rel = b.get("relationships", {}).get("controller", {}).get("data", {})
+                    ctrl_id = str(ctrl_rel.get("id", "")) if ctrl_rel else ""
+
+                    if bid not in breakers:
+                        breakers[bid] = {
+                            "id":            bid,
+                            "name":          a.get("name", f"Breaker {bid}"),
+                            "controller_id": ctrl_id,
+                            "bs_ids":        [],
+                        }
+                    if bs_id not in breakers[bid]["bs_ids"]:
+                        breakers[bid]["bs_ids"].append(bs_id)
+                    if bid not in breaker_sets[bs_id]["breakers"]:
+                        breaker_sets[bs_id]["breakers"].append(bid)
+            except Exception:
+                pass
+
+        # 5) Hent consumption data for hvert breaker set (aggregeret per-fase)
+        for bs_id in list(breaker_sets.keys()):
+            try:
+                r = req.get(f"{base}/api/v1/breaker_sets/{bs_id}/consumption.json",
+                            headers=hdrs, timeout=10)
+                if r.ok:
+                    data = r.json()
+                    if isinstance(data, list) and len(data) > 0:
+                        bs_readings[bs_id] = data[0]
+            except Exception:
+                pass
+
+        # 6) Hent consumption data for hver breaker (per-fase detaljer)
+        fetched = 0
+        for bid in list(breakers.keys()):
+            try:
+                r = req.get(f"{base}/api/v1/breakers/{bid}/consumption.json",
+                            headers=hdrs, timeout=10)
+                if r.ok:
+                    data = r.json()
+                    if isinstance(data, list) and len(data) > 0:
+                        latest = data[0]
+                        readings[bid] = latest
+                        if bid not in history:
+                            history[bid] = []
+                        history[bid].append(latest)
+                        if len(history[bid]) > MAX_HISTORY:
+                            history[bid] = history[bid][-MAX_HISTORY:]
+
+                        temp = latest.get("avg_temperature_c", 0) or 0
+                        if temp > 70:
+                            alerts.append({
+                                "time": now,
+                                "device": breakers[bid]["name"],
+                                "msg": f"Hoej temp: {temp} C",
+                                "level": "warning"
+                            })
+                        fetched += 1
+            except Exception:
+                pass
+
+        if len(alerts) > MAX_ALERTS:
+            alerts[:] = alerts[-MAX_ALERTS:]
+
+        msg = f"OK — {len(sites)} sites, {len(breaker_sets)} breaker sets, {fetched} breakers med data"
+        sync_log.insert(0, {"time": now, "msg": msg, "ok": True})
         if len(sync_log) > 50:
             sync_log.pop()
         config["sync_status"]  = "ok"
@@ -144,22 +196,21 @@ def fetch_from_hybird():
 
     except Exception as e:
         msg = f"Fejl: {e}"
-        now = datetime.utcnow().isoformat()
-        sync_log.insert(0, {"time":now,"msg":msg,"ok":False})
+        sync_log.insert(0, {"time": now, "msg": msg, "ok": False})
         config["sync_status"]  = "error"
         config["sync_message"] = msg
         return False, msg
 
-# -- Background poller ---
+# ── Background poller ─────────────────────────────────────────────────
 def _poller():
     while True:
-        if config["auto_poll"] and config["hybird_api_token"] and config["breaker_set_id"]:
-            fetch_from_hybird()
+        if config["auto_poll"] and config["hybird_api_token"]:
+            fetch_all()
         time.sleep(max(config["poll_interval_s"], 10))
 
 threading.Thread(target=_poller, daemon=True).start()
 
-# -- REST API ---
+# ── REST API ──────────────────────────────────────────────────────────
 @app.route("/")
 def index():
     return render_template("dashboard.html")
@@ -173,7 +224,7 @@ def get_config():
 @app.route("/api/config", methods=["POST"])
 def set_config():
     data = request.get_json() or {}
-    allowed = ["hybird_base_url","hybird_api_token","site_id","breaker_set_id","poll_interval_s","auto_poll"]
+    allowed = ["hybird_base_url", "hybird_api_token", "poll_interval_s", "auto_poll"]
     for k in allowed:
         if k in data:
             config[k] = data[k]
@@ -181,45 +232,63 @@ def set_config():
 
 @app.route("/api/sync", methods=["POST"])
 def manual_sync():
-    ok, msg = fetch_from_hybird()
+    ok, msg = fetch_all()
     return jsonify({"ok": ok, "message": msg})
 
-@app.route("/api/devices")
-def get_devices():
+@app.route("/api/sites")
+def get_sites():
+    return jsonify(list(sites.values()))
+
+@app.route("/api/breaker_sets")
+def get_breaker_sets_api():
     out = []
-    for did, dev in devices.items():
-        h = history.get(did, [])
-        latest = h[-1] if h else {}
-        out.append({**dev, **latest, "readings_count": len(h)})
+    for bs_id, bs in breaker_sets.items():
+        entry = dict(bs)
+        entry["consumption"] = bs_readings.get(bs_id, {})
+        out.append(entry)
     return jsonify(out)
 
-@app.route("/api/devices/<device_id>/history")
-def get_device_history(device_id):
+@app.route("/api/breakers")
+def get_breakers_api():
+    out = []
+    for bid, b in breakers.items():
+        entry = dict(b)
+        r = readings.get(bid, {})
+        entry["consumption"] = r
+        ctrl_id = b.get("controller_id", "")
+        ctrl = controllers.get(ctrl_id, {})
+        entry["controller_name"] = ctrl.get("name", "")
+        site_id = ctrl.get("site_id", "")
+        site = sites.get(site_id, {})
+        entry["site_id"]   = site_id
+        entry["site_name"] = site.get("name", "")
+        entry["lat"]       = site.get("lat")
+        entry["lng"]       = site.get("lng")
+        out.append(entry)
+    return jsonify(out)
+
+@app.route("/api/breakers/<breaker_id>/history")
+def get_breaker_history(breaker_id):
     limit = int(request.args.get("limit", 60))
-    return jsonify(history.get(device_id, [])[-limit:])
+    return jsonify(history.get(breaker_id, [])[-limit:])
 
 @app.route("/api/summary")
 def get_summary():
-    total_w = 0
-    online  = 0
-    for did, dev in devices.items():
-        h = history.get(did,[])
-        if h:
-            total_w += h[-1].get("power_w",0)
-            online  += 1
-    total_kwh = sum(
-        sum(r.get("power_w",0) for r in history.get(did,[]))*(10/60/1000)
-        for did in devices
-    )
+    total_w = sum(r.get("avg_total_active_power_w", 0) or 0 for r in readings.values())
+    total_kwh = sum(r.get("consumption_kwh", 0) or 0 for r in readings.values())
+    online_ctrls = sum(1 for c in controllers.values() if c.get("last_seen"))
     return jsonify({
-        "total_power_w":  round(total_w,1),
-        "total_kwh":      round(total_kwh,2),
-        "devices_online": online,
-        "devices_total":  len(devices),
-        "alerts_count":   len(alerts),
-        "sync_status":    config["sync_status"],
-        "sync_message":   config["sync_message"],
-        "last_sync":      config["last_sync"],
+        "total_power_w":      round(total_w, 1),
+        "total_kwh":          round(total_kwh, 2),
+        "sites_count":        len(sites),
+        "controllers_count":  len(controllers),
+        "controllers_online": online_ctrls,
+        "breaker_sets_count": len(breaker_sets),
+        "breakers_count":     len(breakers),
+        "alerts_count":       len(alerts),
+        "sync_status":        config["sync_status"],
+        "sync_message":       config["sync_message"],
+        "last_sync":          config["last_sync"],
     })
 
 @app.route("/api/alerts")
@@ -229,27 +298,6 @@ def get_alerts():
 @app.route("/api/synclog")
 def get_synclog():
     return jsonify(sync_log[:20])
-
-# Modtag data fra eksternt script (hybird_bridge.py)
-@app.route("/api/push", methods=["POST"])
-def push_readings():
-    data  = request.get_json() or {}
-    items = data.get("readings",[])
-    now   = datetime.utcnow().isoformat()
-    for r in items:
-        bid  = str(r.get("breaker_id","unknown"))
-        name = r.get("name", bid)
-        if bid not in devices:
-            devices[bid] = {"id":bid,"name":name,"phase":r.get("phase","L?"),
-                            "location":r.get("location",""),"source":"push","online":True}
-            history[bid] = []
-        reading = {"timestamp":now,"power_w":r.get("power_w",0),"voltage_v":r.get("voltage_v",230),
-                   "current_a":r.get("current_a",0),"temp_c":r.get("temp_c",0)}
-        history[bid].append(reading)
-        if len(history[bid]) > MAX_HISTORY:
-            history[bid] = history[bid][-MAX_HISTORY:]
-        devices[bid]["last_seen"] = now
-    return jsonify({"ok":True,"stored":len(items)})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
