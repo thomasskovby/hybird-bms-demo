@@ -109,50 +109,60 @@ def fetch_from_hybird():
     config["sync_message"] = "Kontakter Hybird API..."
 
     try:
-        # Byg URL: breaker_sets endpoint direkte under /api/v1/
-        url = f"{base}/api/v1/breaker_sets/{bs_id}.json"
+        # Hent breakers for dette breaker set (JSON:API format)
+        url = f"{base}/api/v1/breaker_sets/{bs_id}/breakers.json"
 
         r = req.get(url, headers=headers, timeout=10)
         r.raise_for_status()
-        data = r.json()
+        resp = r.json()
 
-        breakers = data.get("breakers") or data.get("breaker_set",{}).get("breakers",[])
-        if not breakers:
-            breakers = data if isinstance(data, list) else []
+        # JSON:API: data[] = breakers, included[] = latest_measurements
+        breaker_list = resp.get("data", [])
+        included = resp.get("included", [])
+
+        # Byg lookup for measurements: breaker_id -> measurement attributes
+        measurements = {}
+        for inc in included:
+            if inc.get("type") == "breaker_latest_measurement":
+                measurements[str(inc.get("id", ""))] = inc.get("attributes", {})
 
         fetched = 0
         now = datetime.utcnow().isoformat()
 
-        for b in breakers:
-            bid  = str(b.get("id", b.get("breaker_id","")))
-            name = b.get("name") or b.get("label") or f"Breaker {bid}"
+        for b in breaker_list:
+            bid  = str(b.get("id", ""))
+            attrs = b.get("attributes", {})
+            name = attrs.get("name") or f"Breaker {bid}"
             if not bid:
                 continue
 
-            pw   = float(b.get("power_w")       or b.get("active_power") or 0)
-            volt = float(b.get("voltage_v")      or b.get("voltage")      or 230)
-            amp  = float(b.get("current_a")      or b.get("current")      or pw/max(volt,1))
-            temp = float(b.get("temperature_c")  or b.get("temperature")  or 0)
+            # Hent measurement data fra included
+            meas = measurements.get(bid, {})
+            pw   = float(meas.get("total_active_power_w") or 0)
+            volt = float(meas.get("phase_a_voltage_v") or 230)
+            amp  = float(meas.get("phase_a_current_a") or pw/max(volt,1))
+            temp = float(meas.get("temperature_c") or 0)
+            state = meas.get("state", "unknown")
 
             if bid not in devices:
                 devices[bid] = {
                     "id":       bid,
                     "name":     name,
-                    "phase":    b.get("phase","L?"),
-                    "location": b.get("location") or b.get("group") or bs_id,
+                    "phase":    "L1",
+                    "location": bs_id,
                     "source":   "hybird",
-                    "online":   True,
+                    "online":   state != "offline",
                 }
                 history[bid] = []
 
             reading = {
-                "timestamp": now,
+                "timestamp": meas.get("measured_at", now),
                 "power_w":   pw,
                 "voltage_v": volt,
                 "current_a": amp,
                 "temp_c":    temp,
             }
-            devices[bid].update({"online":True, "last_seen":now})
+            devices[bid].update({"online": state != "offline", "last_seen": now, "name": name})
             history[bid].append(reading)
             if len(history[bid]) > MAX_HISTORY:
                 history[bid] = history[bid][-MAX_HISTORY:]
