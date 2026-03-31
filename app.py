@@ -76,6 +76,8 @@ def fetch_account(acct):
 
     hdrs = _headers(token)
     now  = datetime.utcnow().isoformat()
+    fetch_mode     = acct.get("fetch_mode", "all")
+    selected_sites = acct.get("selected_sites", [])
 
     try:
         # 1) Hent sites med GPS
@@ -95,6 +97,18 @@ def fetch_account(acct):
                 "account_id":  acct_id,
                 "account_name": acct_name,
             }
+
+        # Filter sites if selected_sites is set
+        if selected_sites:
+            site_keys_to_keep = set()
+            for s_id in selected_sites:
+                sk = _key(acct_id, s_id)
+                if sk in sites:
+                    site_keys_to_keep.add(sk)
+            # Remove sites not in selection
+            for sk in list(sites.keys()):
+                if sk.startswith(acct_id + ":") and sk not in site_keys_to_keep:
+                    del sites[sk]
 
         # 2) Hent controllers
         r = req.get(f"{base}/api/v1/controllers.json", headers=hdrs, timeout=15)
@@ -117,18 +131,24 @@ def fetch_account(acct):
                 if key not in sites[site_key]["controllers"]:
                     sites[site_key]["controllers"].append(key)
 
-        # 3) Hent alle breaker sets
+        # 3) Hent breaker sets (filtreret efter fetch_mode)
         r = req.get(f"{base}/api/v1/breaker_sets.json", headers=hdrs, timeout=15)
         r.raise_for_status()
         local_bs_ids = []
         for bs in r.json().get("data", []):
             a = bs.get("attributes", {})
+            is_virtual = a.get("virtual_meter", False)
+            # Apply fetch_mode filter
+            if fetch_mode == "virtual_only" and not is_virtual:
+                continue
+            if fetch_mode == "non_virtual" and is_virtual:
+                continue
             key = _key(acct_id, bs["id"])
             breaker_sets[key] = {
                 "id":            key,
                 "raw_id":        bs["id"],
                 "name":          a.get("name", ""),
-                "virtual_meter": a.get("virtual_meter", False),
+                "virtual_meter": is_virtual,
                 "breakers":      [],
                 "account_id":    acct_id,
             }
@@ -279,11 +299,13 @@ def get_accounts():
 def add_account():
     data = request.get_json() or {}
     acct = {
-        "id":        data.get("id") or str(uuid.uuid4())[:8],
-        "name":      data.get("name", "Ny konto"),
-        "base_url":  data.get("base_url", "https://demo.hybird.energy"),
-        "api_token": data.get("api_token", ""),
-        "enabled":   data.get("enabled", True),
+        "id":             data.get("id") or str(uuid.uuid4())[:8],
+        "name":           data.get("name", "Ny konto"),
+        "base_url":       data.get("base_url", "https://demo.hybird.energy"),
+        "api_token":      data.get("api_token", ""),
+        "enabled":        data.get("enabled", True),
+        "fetch_mode":     data.get("fetch_mode", "all"),       # all | virtual_only | non_virtual
+        "selected_sites": data.get("selected_sites", []),      # empty = all sites
     }
     accounts.append(acct)
     return jsonify({"ok": True, "account": {k: v for k, v in acct.items() if k != "api_token"}})
@@ -293,7 +315,7 @@ def update_account(acct_id):
     data = request.get_json() or {}
     for a in accounts:
         if a["id"] == acct_id:
-            for k in ["name", "base_url", "api_token", "enabled"]:
+            for k in ["name", "base_url", "api_token", "enabled", "fetch_mode", "selected_sites"]:
                 if k in data:
                     a[k] = data[k]
             return jsonify({"ok": True})
@@ -339,6 +361,48 @@ def sync_account(acct_id):
 @app.route("/api/sites")
 def get_sites():
     return jsonify(list(sites.values()))
+
+@app.route("/api/accounts/<acct_id>/available_sites")
+def get_account_available_sites(acct_id):
+    """Hent alle sites for en konto (ufiltreret) til brug i site-vaelger."""
+    acct = next((a for a in accounts if a["id"] == acct_id), None)
+    if not acct:
+        return jsonify([])
+    base = acct["base_url"].rstrip("/")
+    token = acct["api_token"]
+    if not token:
+        return jsonify([])
+    try:
+        r = req.get(f"{base}/api/v1/sites.json", headers=_headers(token), timeout=15)
+        r.raise_for_status()
+        out = []
+        for s in r.json().get("data", []):
+            a = s.get("attributes", {})
+            out.append({"id": s["id"], "name": a.get("name", ""), "address": a.get("address", "")})
+        return jsonify(out)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/accounts/<acct_id>/available_breaker_sets")
+def get_account_available_breaker_sets(acct_id):
+    """Hent alle breaker sets for en konto (ufiltreret) til brug i vaelger."""
+    acct = next((a for a in accounts if a["id"] == acct_id), None)
+    if not acct:
+        return jsonify([])
+    base = acct["base_url"].rstrip("/")
+    token = acct["api_token"]
+    if not token:
+        return jsonify([])
+    try:
+        r = req.get(f"{base}/api/v1/breaker_sets.json", headers=_headers(token), timeout=15)
+        r.raise_for_status()
+        out = []
+        for bs in r.json().get("data", []):
+            a = bs.get("attributes", {})
+            out.append({"id": bs["id"], "name": a.get("name", ""), "virtual_meter": a.get("virtual_meter", False)})
+        return jsonify(out)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/breaker_sets")
 def get_breaker_sets_api():
