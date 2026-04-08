@@ -50,6 +50,13 @@ body{font-family:'Figtree',sans-serif;background:var(--bg);color:var(--text);min
 .account-card .name-input{max-width:140px;}
 .account-card .url-input{max-width:280px;}
 .account-card .token-input{flex:2;min-width:200px;}
+.account-card .mode-select{max-width:170px;background:var(--surface);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:'Figtree',sans-serif;font-size:11px;padding:8px 8px;outline:none;}
+.account-detail-row{display:flex;align-items:center;gap:10px;padding:4px 14px 8px;font-size:11px;color:var(--muted);flex-wrap:wrap;}
+.site-tags{display:flex;gap:4px;flex-wrap:wrap;}
+.site-tag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:rgba(155,155,107,0.12);border:1px solid var(--border);border-radius:4px;font-size:10px;cursor:pointer;}
+.site-tag.active{background:var(--dark-green);color:var(--sand);border-color:var(--light-green);}
+.site-tag:hover{background:rgba(155,155,107,0.25);}
+.site-tag.active:hover{background:var(--light-green);color:var(--dark-green);}
 .account-actions{display:flex;gap:6px;flex-shrink:0;}
 .add-account-row{display:flex;align-items:center;gap:12px;margin-top:8px;}
 
@@ -141,6 +148,9 @@ main{max-width:1400px;margin:0 auto;padding:24px 28px;}
     </div>
     <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
       <button class="btn btn-primary" id="btn-sync" onclick="manualSync()">Hent alle</button>
+      <div class="interval-group"><span>Site:</span>
+        <select id="site-filter" onchange="applySiteFilter()"><option value="">Alle sites</option></select>
+      </div>
       <div class="interval-group"><span>Auto-opdater hvert</span>
         <select id="cfg-interval" onchange="saveConfig()"><option value="30">30 sek</option><option value="60" selected>1 min</option><option value="300">5 min</option></select>
       </div>
@@ -222,23 +232,34 @@ const donutChart=new Chart(document.getElementById('donutChart'),{
   options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},plugins:{legend:{position:'bottom',labels:{color:C.muted,font:{size:9,family:'Figtree'},boxWidth:8,padding:8}}},cutout:'60%'}
 });
 
-let selectedBreaker=null,autoPoll=false;
+let selectedBreaker=null,autoPoll=false,currentSiteFilter='',allSitesData=[],allBreakersData=[];
 
 function updateClock(){document.getElementById('topbar-clock').textContent=new Date().toLocaleTimeString('da-DK');}
 setInterval(updateClock,1000);updateClock();
 
-/* ââ Account Management ââ */
+/* ── Account Management ── */
 function renderAccounts(accountsList){
   const el=document.getElementById('accounts-list');
   if(!accountsList||!accountsList.length){el.innerHTML='<div class="no-data" style="padding:10px">Ingen konti tilfojet endnu</div>';return;}
-  el.innerHTML=accountsList.map(a=>'<div class="account-card" data-id="'+a.id+'">'+
-    '<input class="cfg-input name-input" placeholder="Navn" value="'+(a.name||'')+'" onchange="updateAccount(\''+a.id+'\',this.parentElement)">'+
-    '<input class="cfg-input url-input" placeholder="Base URL" value="'+(a.base_url||'')+'" onchange="updateAccount(\''+a.id+'\',this.parentElement)">'+
-    '<input class="cfg-input token-input" type="password" placeholder="'+(a.has_token?'(token gemt)':'API token')+'" onchange="updateAccount(\''+a.id+'\',this.parentElement)">'+
+  el.innerHTML=accountsList.map(a=>{
+    const fm=a.fetch_mode||'all';
+    const selSites=a.selected_sites||[];
+    return '<div class="account-card" data-id="'+a.id+'">'+
+    '<input class="cfg-input name-input" placeholder="Navn" value="'+(a.name||'')+'" onchange="updateAccount(\''+a.id+'\')">'+
+    '<input class="cfg-input url-input" placeholder="Base URL" value="'+(a.base_url||'')+'" onchange="updateAccount(\''+a.id+'\')">'+
+    '<input class="cfg-input token-input" type="password" placeholder="'+(a.has_token?'(token gemt)':'API token')+'" onchange="updateAccount(\''+a.id+'\')">'+
+    '<select class="mode-select" data-field="fetch_mode" onchange="updateAccount(\''+a.id+'\')">'+
+      '<option value="all"'+(fm==='all'?' selected':'')+'>Hent alt</option>'+
+      '<option value="virtual_only"'+(fm==='virtual_only'?' selected':'')+'>Kun virtuelle</option>'+
+      '<option value="non_virtual"'+(fm==='non_virtual'?' selected':'')+'>Kun fysiske</option>'+
+    '</select>'+
     '<div class="account-actions">'+
+    '<button class="btn btn-sm btn-ghost" onclick="showSiteSelector(\''+a.id+'\')" title="Vaelg sites">Sites</button>'+
     '<button class="btn btn-sm btn-primary" onclick="syncAccount(\''+a.id+'\')">Hent</button>'+
     '<button class="btn btn-sm btn-danger" onclick="removeAccount(\''+a.id+'\')">&times;</button>'+
-    '</div></div>').join('');
+    '</div></div>'+
+    '<div class="account-detail-row" id="sites-row-'+a.id+'" style="display:none"></div>';
+  }).join('');
 }
 
 async function loadAccounts(){
@@ -251,16 +272,56 @@ async function addAccount(){
   await loadAccounts();
 }
 
-async function updateAccount(id,card){
+async function updateAccount(id){
+  const card=document.querySelector('.account-card[data-id="'+id+'"]');
+  if(!card)return;
   const inputs=card.querySelectorAll('.cfg-input');
+  const modeSelect=card.querySelector('.mode-select');
   const body={name:inputs[0].value.trim(),base_url:inputs[1].value.trim()};
   if(inputs[2].value)body.api_token=inputs[2].value.trim();
+  if(modeSelect)body.fetch_mode=modeSelect.value;
   await fetch('/api/accounts/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
 }
 
 async function removeAccount(id){
   await fetch('/api/accounts/'+id,{method:'DELETE'});
   await loadAccounts();await refreshAll();
+}
+
+async function showSiteSelector(acctId){
+  const row=document.getElementById('sites-row-'+acctId);
+  if(!row)return;
+  if(row.style.display!=='none'){row.style.display='none';return;}
+  row.innerHTML='<span>Henter sites...</span>';row.style.display='flex';
+  try{
+    const availSites=await(await fetch('/api/accounts/'+acctId+'/available_sites')).json();
+    if(availSites.error||!availSites.length){row.innerHTML='<span>Ingen sites fundet - tjek token</span>';return;}
+    // Get current selected_sites from the account
+    const accts=await(await fetch('/api/accounts')).json();
+    const acct=accts.find(a=>a.id===acctId);
+    const selected=acct&&acct.selected_sites?acct.selected_sites:[];
+    const allSelected=selected.length===0;
+    row.innerHTML='<span>Sites: </span>'+
+      '<span class="site-tag'+(allSelected?' active':'')+'" onclick="toggleSiteFilter(\''+acctId+'\',\'all\')">Alle</span>'+
+      '<div class="site-tags">'+availSites.map(s=>
+        '<span class="site-tag'+(!allSelected&&selected.includes(s.id)?' active':'')+'" data-site-id="'+s.id+'" onclick="toggleSiteFilter(\''+acctId+'\',\''+s.id+'\')">'+s.name+'</span>'
+      ).join('')+'</div>';
+  }catch(e){row.innerHTML='<span>Fejl: '+e.message+'</span>';}
+}
+
+async function toggleSiteFilter(acctId,siteId){
+  const accts=await(await fetch('/api/accounts')).json();
+  const acct=accts.find(a=>a.id===acctId);
+  let selected=acct&&acct.selected_sites?[...acct.selected_sites]:[];
+  if(siteId==='all'){
+    selected=[];
+  }else{
+    const idx=selected.indexOf(siteId);
+    if(idx>=0)selected.splice(idx,1);
+    else selected.push(siteId);
+  }
+  await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_sites:selected})});
+  await showSiteSelector(acctId);
 }
 
 async function syncAccount(id){
@@ -270,7 +331,7 @@ async function syncAccount(id){
   await refreshAll();
 }
 
-/* ââ Config ââ */
+/* ── Config ── */
 async function saveConfig(){
   await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
     poll_interval_s:parseInt(document.getElementById('cfg-interval').value),
@@ -302,7 +363,7 @@ async function manualSync(){
   btn.disabled=true;btn.textContent='Henter...';setSyncStatus('syncing','Kontakter Hybird API...');
   // Save any unsaved account changes first
   const cards=document.querySelectorAll('.account-card');
-  for(const card of cards){const id=card.dataset.id;await updateAccount(id,card);}
+  for(const card of cards){await updateAccount(card.dataset.id);}
   try{const d=await(await fetch('/api/sync',{method:'POST'})).json();setSyncStatus(d.ok?'ok':'error',d.message);}
   catch(e){setSyncStatus('error','Fejl: '+e.message);}
   btn.disabled=false;btn.textContent='Hent alle';await refreshAll();
@@ -311,23 +372,58 @@ async function manualSync(){
 async function refreshAll(){await Promise.all([refreshSummary(),refreshSites(),refreshBreakers(),refreshAlerts(),refreshLog()]);}
 
 async function refreshSummary(){
-  const d=await(await fetch('/api/summary')).json();const pw=d.total_power_w||0;
-  document.getElementById('kpi-power').innerHTML=pw>1000?(pw/1000).toFixed(2)+'<span class="kpi-unit">kW</span>':pw.toFixed(0)+'<span class="kpi-unit">W</span>';
-  document.getElementById('kpi-power-sub').textContent=pw.toFixed(0)+' W total';
-  document.getElementById('kpi-kwh').innerHTML=(d.total_kwh||0).toFixed(2)+'<span class="kpi-unit">kWh</span>';
-  document.getElementById('kpi-sites').textContent=d.sites_count||0;
-  document.getElementById('kpi-sites-sub').textContent=(d.accounts_count||0)+' konti, '+(d.controllers_online||0)+'/'+(d.controllers_count||0)+' ctrl online';
-  document.getElementById('kpi-breakers').textContent=d.breakers_count||0;
-  document.getElementById('kpi-breakers-sub').textContent=(d.breaker_sets_count||0)+' breaker sets';
+  const d=await(await fetch('/api/summary')).json();
   document.getElementById('kpi-alerts').textContent=d.alerts_count||0;
   if(d.last_sync)setSyncStatus(d.sync_status,d.sync_message);
+  if(!currentSiteFilter){
+    const pw=d.total_power_w||0;
+    document.getElementById('kpi-power').innerHTML=pw>1000?(pw/1000).toFixed(2)+'<span class="kpi-unit">kW</span>':pw.toFixed(0)+'<span class="kpi-unit">W</span>';
+    document.getElementById('kpi-power-sub').textContent=pw.toFixed(0)+' W total';
+    document.getElementById('kpi-kwh').innerHTML=(d.total_kwh||0).toFixed(2)+'<span class="kpi-unit">kWh</span>';
+    document.getElementById('kpi-sites').textContent=d.sites_count||0;
+    document.getElementById('kpi-sites-sub').textContent=(d.accounts_count||0)+' konti, '+(d.controllers_online||0)+'/'+(d.controllers_count||0)+' ctrl online';
+    document.getElementById('kpi-breakers').textContent=d.breakers_count||0;
+    document.getElementById('kpi-breakers-sub').textContent=(d.breaker_sets_count||0)+' breaker sets';
+  }
 }
 
-async function refreshSites(){updateMap(await(await fetch('/api/sites')).json());}
+async function refreshSites(){
+  allSitesData=await(await fetch('/api/sites')).json();
+  populateSiteFilter(allSitesData);
+  const filtered=currentSiteFilter?allSitesData.filter(s=>s.id===currentSiteFilter):allSitesData;
+  updateMap(filtered);
+}
+
+function populateSiteFilter(sitesArr){
+  const sel=document.getElementById('site-filter');
+  const prev=sel.value;
+  sel.innerHTML='<option value="">Alle sites</option>';
+  sitesArr.forEach(s=>{
+    const opt=document.createElement('option');opt.value=s.id;
+    opt.textContent=s.name+(s.account_name?' ('+s.account_name+')':'');
+    sel.appendChild(opt);
+  });
+  sel.value=prev||'';
+}
+
+function applySiteFilter(){
+  currentSiteFilter=document.getElementById('site-filter').value;
+  const filtered=currentSiteFilter?allSitesData.filter(s=>s.id===currentSiteFilter):allSitesData;
+  updateMap(filtered);
+  renderFilteredBreakers();
+  updateFilteredKPIs();
+}
 
 async function refreshBreakers(){
-  const data=await(await fetch('/api/breakers')).json();const tbody=document.getElementById('breaker-tbody');tbody.innerHTML='';
-  if(!data.length){tbody.innerHTML='<tr><td colspan="14" class="no-data">Ingen data - tilfoej konto og klik "Hent alle"</td></tr>';return;}
+  allBreakersData=await(await fetch('/api/breakers')).json();
+  renderFilteredBreakers();
+  updateFilteredKPIs();
+}
+
+function renderFilteredBreakers(){
+  const data=currentSiteFilter?allBreakersData.filter(b=>b.site_id===currentSiteFilter):allBreakersData;
+  const tbody=document.getElementById('breaker-tbody');tbody.innerHTML='';
+  if(!data.length){tbody.innerHTML='<tr><td colspan="14" class="no-data">Ingen data'+(currentSiteFilter?' for valgt site':'')+'</td></tr>';return;}
   document.getElementById('breaker-count-tag').textContent=data.length+' breakers';
   const maxPw=Math.max(...data.map(d=>d.consumption?.avg_total_active_power_w||0),1);
   data.forEach(b=>{
@@ -350,6 +446,22 @@ async function refreshBreakers(){
   const wp=data.filter(b=>(b.consumption?.avg_total_active_power_w||0)>0);
   donutChart.data.labels=wp.map(b=>b.name);donutChart.data.datasets[0].data=wp.map(b=>b.consumption.avg_total_active_power_w);donutChart.update();
   if(!selectedBreaker&&data.length)selectBreaker(data[0].id,data[0].name);
+}
+
+function updateFilteredKPIs(){
+  const data=currentSiteFilter?allBreakersData.filter(b=>b.site_id===currentSiteFilter):allBreakersData;
+  const pw=data.reduce((s,b)=>(s+(b.consumption?.avg_total_active_power_w||0)),0);
+  const kwh=data.reduce((s,b)=>(s+(b.consumption?.consumption_kwh||0)),0);
+  document.getElementById('kpi-power').innerHTML=pw>1000?(pw/1000).toFixed(2)+'<span class="kpi-unit">kW</span>':pw.toFixed(0)+'<span class="kpi-unit">W</span>';
+  document.getElementById('kpi-power-sub').textContent=pw.toFixed(0)+' W total';
+  document.getElementById('kpi-kwh').innerHTML=kwh.toFixed(2)+'<span class="kpi-unit">kWh</span>';
+  if(currentSiteFilter){
+    const site=allSitesData.find(s=>s.id===currentSiteFilter);
+    document.getElementById('kpi-sites').textContent='1';
+    document.getElementById('kpi-sites-sub').textContent=site?site.name:'Valgt site';
+    document.getElementById('kpi-breakers').textContent=data.length;
+    document.getElementById('kpi-breakers-sub').textContent='i valgt site';
+  }
 }
 
 async function selectBreaker(id,name){
