@@ -316,6 +316,7 @@ def add_account():
         "fetch_mode":     data.get("fetch_mode", "all"),       # all | virtual_only | non_virtual
         "selected_sites": data.get("selected_sites", []),      # empty = all sites
         "selected_breaker_sets": data.get("selected_breaker_sets", []),  # empty = all breaker sets
+        "selected_breakers": data.get("selected_breakers", []),  # empty = all breakers within selected sets
     }
     accounts.append(acct)
     return jsonify({"ok": True, "account": {k: v for k, v in acct.items() if k != "api_token"}})
@@ -325,7 +326,7 @@ def update_account(acct_id):
     data = request.get_json() or {}
     for a in accounts:
         if a["id"] == acct_id:
-            for k in ["name", "base_url", "api_token", "enabled", "fetch_mode", "selected_sites", "selected_breaker_sets"]:
+            for k in ["name", "base_url", "api_token", "enabled", "fetch_mode", "selected_sites", "selected_breaker_sets", "selected_breakers"]:
                 if k in data:
                     a[k] = data[k]
             return jsonify({"ok": True})
@@ -421,6 +422,72 @@ def get_account_available_breaker_sets(acct_id):
         return jsonify(out)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/api/accounts/<acct_id>/available_breakers")
+def get_account_available_breakers(acct_id):
+    """Hent alle individuelle breakers grouped by breaker set for en konto."""
+    acct = next((a for a in accounts if a["id"] == acct_id), None)
+    if not acct:
+        return jsonify([])
+    base = acct["base_url"].rstrip("/")
+    token = acct["api_token"]
+    if not token:
+        return jsonify([])
+    try:
+        # First get all breaker sets
+        r = req.get(f"{base}/api/v1/breaker_sets.json", headers=_headers(token), timeout=15)
+        r.raise_for_status()
+        result = []
+        for bs in r.json().get("data", []):
+            a = bs.get("attributes", {})
+            site_rel = bs.get("relationships", {}).get("site", {}).get("data", {})
+            site_id = str(site_rel.get("id", "")) if site_rel else ""
+            bs_entry = {
+                "id": bs["id"],
+                "name": a.get("name", ""),
+                "virtual_meter": a.get("virtual_meter", False),
+                "site_id": site_id,
+                "breakers": [],
+            }
+            # Fetch breakers for this breaker set
+            try:
+                r2 = req.get(f"{base}/api/v1/breaker_sets/{bs['id']}/breakers.json",
+                             headers=_headers(token), timeout=15)
+                if r2.ok:
+                    for b in r2.json().get("data", []):
+                        ba = b.get("attributes", {})
+                        bs_entry["breakers"].append({
+                            "id": b["id"],
+                            "name": ba.get("name", f"Breaker {b['id']}"),
+                        })
+            except Exception:
+                pass
+            result.append(bs_entry)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/breaker_sets/<path:bs_id>/history")
+def get_breaker_set_history(bs_id):
+    """Hent historik for et breaker set (aggregated from bs_readings)."""
+    limit = int(request.args.get("limit", 60))
+    # For breaker sets, aggregate history from their breakers
+    bs = breaker_sets.get(bs_id, {})
+    if not bs:
+        return jsonify([])
+    # Return bs_readings if available, otherwise aggregate breaker histories
+    bs_reading = bs_readings.get(bs_id)
+    if bs_reading:
+        return jsonify([bs_reading])
+    # Fallback: aggregate from breakers in this set
+    breaker_keys = bs.get("breakers", [])
+    if not breaker_keys:
+        return jsonify([])
+    # Try to build combined history from first breaker
+    for bk in breaker_keys:
+        if bk in history and history[bk]:
+            return jsonify(history[bk][-limit:])
+    return jsonify([])
 
 @app.route("/api/breaker_sets")
 def get_breaker_sets_api():
