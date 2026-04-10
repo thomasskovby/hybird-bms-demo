@@ -50,17 +50,35 @@ body{font-family:'Figtree',sans-serif;background:var(--bg);color:var(--text);min
 .account-card .name-input{max-width:140px;}
 .account-card .url-input{max-width:280px;}
 .account-card .token-input{flex:2;min-width:200px;}
-.account-card .mode-select{max-width:170px;background:var(--surface);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:'Figtree',sans-serif;font-size:11px;padding:8px 8px;outline:none;}
-.account-detail-row{display:flex;align-items:center;gap:10px;padding:4px 14px 8px;font-size:11px;color:var(--muted);flex-wrap:wrap;}
-.site-tags{display:flex;gap:4px;flex-wrap:wrap;}
+.account-actions{display:flex;gap:6px;flex-shrink:0;}
+
+.selector-panel{display:none;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:0 0 8px 8px;margin-top:-9px;margin-bottom:8px;}
+.selector-panel.open{display:block;}
+.selector-group{margin-top:8px;}
+.selector-group-title{font-size:10px;font-weight:600;letter-spacing:0.5px;margin-bottom:6px;}
+.selector-group-title.physical{color:var(--dark-green);}
+.selector-group-title.virtual{color:var(--blue-grey);}
+.bs-group{margin-bottom:10px;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.bs-header{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);cursor:pointer;font-size:11px;font-weight:500;}
+.bs-header:hover{background:var(--surface3);}
+.bs-header .arrow{font-size:8px;transition:transform 0.2s;color:var(--muted);}
+.bs-header .arrow.open{transform:rotate(90deg);}
+.bs-header .bs-check{width:14px;height:14px;border:1.5px solid var(--border2);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;cursor:pointer;flex-shrink:0;}
+.bs-header .bs-check.checked{background:var(--dark-green);border-color:var(--light-green);color:var(--sand);}
+.bs-breakers{display:none;padding:4px 10px 6px 30px;}
+.bs-breakers.open{display:block;}
+.breaker-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px;cursor:pointer;}
+.breaker-item:hover{color:var(--dark-green);}
+.breaker-check{width:13px;height:13px;border:1.5px solid var(--border2);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;}
+.breaker-check.checked{background:var(--light-green);border-color:var(--dark-green);color:#fff;}
+.quick-filters{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}
 .site-tag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:rgba(155,155,107,0.12);border:1px solid var(--border);border-radius:4px;font-size:10px;cursor:pointer;}
 .site-tag.active{background:var(--dark-green);color:var(--sand);border-color:var(--light-green);}
 .site-tag:hover{background:rgba(155,155,107,0.25);}
 .site-tag.active:hover{background:var(--light-green);color:var(--dark-green);}
-.account-actions{display:flex;gap:6px;flex-shrink:0;}
-.add-account-row{display:flex;align-items:center;gap:12px;margin-top:8px;}
+.site-tags{display:flex;gap:4px;flex-wrap:wrap;}
 
-.config-row2{max-width:1400px;margin:12px auto 0;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.config-row2{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
 .interval-group{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);}
 .interval-group select{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:'Figtree',sans-serif;font-size:12px;padding:5px 10px;outline:none;}
 .toggle-wrap{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);cursor:pointer;}
@@ -121,10 +139,36 @@ main{max-width:1400px;margin:0 auto;padding:24px 28px;}
 .log-item:last-child{border-bottom:none;}
 .log-ok{color:var(--light-green);}.log-err{color:var(--orange);}
 .log-ts{color:var(--muted);font-size:10px;flex-shrink:0;}
+
+/* Detail view panels */
+.detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.detail-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;}
+.detail-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.detail-value{font-size:22px;font-weight:700;color:var(--dark-green);}
+.detail-unit{font-size:11px;color:var(--muted);margin-left:2px;}
+.detail-sub{font-size:10px;color:var(--muted);margin-top:4px;}
+
+.phase-detail{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.phase-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;}
+.phase-card-title{font-size:10px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.phase-card-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(89,91,61,0.06);}
+.phase-card-row:last-child{border-bottom:none;}
+.phase-card-label{color:var(--muted);}
+.phase-card-val{font-weight:600;color:var(--dark-green);}
+
+/* Virtual meter consumption view */
+.vm-consumption{padding:20px;}
+.vm-title{font-size:16px;font-weight:700;color:var(--dark-green);margin-bottom:4px;}
+.vm-subtitle{font-size:11px;color:var(--muted);margin-bottom:16px;}
+.vm-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.vm-kpi{background:var(--surface2);border-radius:8px;padding:16px;text-align:center;}
+.vm-kpi-value{font-size:26px;font-weight:700;color:var(--dark-green);}
+.vm-kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+
 ::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 .kpi,.panel,.config-hero,.map-panel{animation:fadeUp 0.35s ease both;}
-@media(max-width:1000px){.kpi-strip{grid-template-columns:repeat(2,1fr);}.grid-main,.grid-bottom{grid-template-columns:1fr;}.config-hero-inner{flex-direction:column;align-items:stretch;}main{padding:16px;}#map{height:220px;}}
+@media(max-width:1000px){.kpi-strip{grid-template-columns:repeat(2,1fr);}.grid-main,.grid-bottom{grid-template-columns:1fr;}.detail-grid{grid-template-columns:repeat(2,1fr);}.phase-detail{grid-template-columns:1fr;}main{padding:16px;}#map{height:220px;}}
 </style>
 </head>
 <body>
@@ -146,7 +190,7 @@ main{max-width:1400px;margin:0 auto;padding:24px 28px;}
       </div>
       <div id="accounts-list"></div>
     </div>
-    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+    <div class="config-row2">
       <button class="btn btn-primary" id="btn-sync" onclick="manualSync()">Hent alle</button>
       <div class="interval-group"><span>Site:</span>
         <select id="site-filter" onchange="applySiteFilter()"><option value="">Alle sites</option></select>
@@ -171,25 +215,59 @@ main{max-width:1400px;margin:0 auto;padding:24px 28px;}
 
   <div class="panel map-panel"><div class="panel-hdr"><div class="panel-title">Oversigtskort - Sites</div><span class="panel-tag" id="map-tag">--</span></div><div id="map"></div></div>
 
-  <div class="grid-main">
-    <div class="panel">
-      <div class="panel-hdr"><div class="panel-title">Breakers - per-fase data</div><span class="panel-tag" id="breaker-count-tag">--</span></div>
-      <div class="panel-body" style="padding:0;overflow-x:auto;">
-        <table class="dev-table">
-          <thead><tr><th>Navn / Site</th><th>Konto</th><th>Total W</th><th>L1 W</th><th>L1 V</th><th>L1 A</th><th>L2 W</th><th>L2 V</th><th>L2 A</th><th>L3 W</th><th>L3 V</th><th>L3 A</th><th>Temp</th><th>kWh</th></tr></thead>
-          <tbody id="breaker-tbody"><tr><td colspan="14" class="no-data">Tilfoej en konto og klik "Hent alle"</td></tr></tbody>
-        </table>
+  <!-- Adaptive main content area -->
+  <div id="main-content">
+    <!-- Default view: breaker table + side panels -->
+    <div id="default-view">
+      <div class="grid-main">
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">Breakers - per-fase data</div><span class="panel-tag" id="breaker-count-tag">--</span></div>
+          <div class="panel-body" style="padding:0;overflow-x:auto;">
+            <table class="dev-table">
+              <thead><tr><th>Navn / Site</th><th>Konto</th><th>Total W</th><th>L1 W</th><th>L1 V</th><th>L1 A</th><th>L2 W</th><th>L2 V</th><th>L2 A</th><th>L3 W</th><th>L3 V</th><th>L3 A</th><th>Temp</th><th>kWh</th></tr></thead>
+              <tbody id="breaker-tbody"><tr><td colspan="14" class="no-data">Tilfoej en konto og klik "Hent alle"</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div class="panel"><div class="panel-hdr"><div class="panel-title">Alarmer</div><span class="panel-tag">Live</span></div><div class="panel-body"><div class="alert-list" id="alert-list"><div class="no-data">Ingen alarmer</div></div></div></div>
+          <div class="panel"><div class="panel-hdr"><div class="panel-title">API Sync Log</div><span class="panel-tag">Seneste kald</span></div><div class="panel-body"><div class="log-list" id="sync-log-list"><div class="no-data">Ingen kald endnu</div></div></div></div>
+        </div>
+      </div>
+      <div class="grid-bottom">
+        <div class="panel"><div class="panel-hdr"><div class="panel-title">Effekthistorik - per fase</div><span class="panel-tag" id="chart-tag">--</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="powerChart"></canvas></div></div></div>
+        <div class="panel"><div class="panel-hdr"><div class="panel-title">Fordeling nu</div><span class="panel-tag">Alle breakers</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="donutChart"></canvas></div></div></div>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:18px;">
-      <div class="panel"><div class="panel-hdr"><div class="panel-title">Alarmer</div><span class="panel-tag">Live</span></div><div class="panel-body"><div class="alert-list" id="alert-list"><div class="no-data">Ingen alarmer</div></div></div></div>
-      <div class="panel"><div class="panel-hdr"><div class="panel-title">API Sync Log</div><span class="panel-tag">Seneste kald</span></div><div class="panel-body"><div class="log-list" id="sync-log-list"><div class="no-data">Ingen kald endnu</div></div></div></div>
-    </div>
-  </div>
 
-  <div class="grid-bottom">
-    <div class="panel"><div class="panel-hdr"><div class="panel-title">Effekthistorik - per fase</div><span class="panel-tag" id="chart-tag">--</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="powerChart"></canvas></div></div></div>
-    <div class="panel"><div class="panel-hdr"><div class="panel-title">Fordeling nu</div><span class="panel-tag">Alle breakers</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="donutChart"></canvas></div></div></div>
+    <!-- Breaker detail view (full electrical data) -->
+    <div id="breaker-detail-view" style="display:none;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <button class="btn btn-sm btn-ghost" onclick="showDefaultView()">&#8592; Tilbage</button>
+        <div><div style="font-size:16px;font-weight:700;color:var(--dark-green);" id="detail-breaker-name">--</div>
+        <div style="font-size:11px;color:var(--muted);" id="detail-breaker-loc">--</div></div>
+      </div>
+      <div class="detail-grid" id="detail-kpis"></div>
+      <div class="phase-detail" id="detail-phases"></div>
+      <div class="grid-bottom">
+        <div class="panel"><div class="panel-hdr"><div class="panel-title">Effekthistorik</div><span class="panel-tag" id="detail-chart-tag">--</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="detailChart"></canvas></div></div></div>
+        <div class="panel"><div class="panel-hdr"><div class="panel-title">Alarmer &amp; Log</div></div><div class="panel-body"><div class="alert-list" id="detail-alerts"><div class="no-data">Ingen alarmer</div></div></div></div>
+      </div>
+    </div>
+
+    <!-- Virtual meter consumption view -->
+    <div id="vm-detail-view" style="display:none;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <button class="btn btn-sm btn-ghost" onclick="showDefaultView()">&#8592; Tilbage</button>
+        <div><div class="vm-title" id="vm-name">--</div>
+        <div class="vm-subtitle" id="vm-sub">Virtuel maaler - Forbrug</div></div>
+      </div>
+      <div class="vm-kpi-row" id="vm-kpis"></div>
+      <div class="grid-bottom">
+        <div class="panel"><div class="panel-hdr"><div class="panel-title">Forbrugshistorik</div><span class="panel-tag" id="vm-chart-tag">kWh</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="vmChart"></canvas></div></div></div>
+        <div class="panel"><div class="panel-hdr"><div class="panel-title">Detaljer</div></div><div class="panel-body"><div id="vm-details" class="no-data">Ingen data</div></div></div>
+      </div>
+    </div>
   </div>
 </main>
 
@@ -216,6 +294,7 @@ function updateMap(sites){
   document.getElementById('map-tag').textContent=bounds.length+' sites med GPS';
 }
 
+// Charts
 const lineChart=new Chart(document.getElementById('powerChart'),{
   type:'line',data:{labels:[],datasets:[
     {label:'Total W',data:[],borderColor:C.darkGreen,borderWidth:1.5,pointRadius:0,tension:0.3,fill:false},
@@ -232,31 +311,181 @@ const donutChart=new Chart(document.getElementById('donutChart'),{
   options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},plugins:{legend:{position:'bottom',labels:{color:C.muted,font:{size:9,family:'Figtree'},boxWidth:8,padding:8}}},cutout:'60%'}
 });
 
-let selectedBreaker=null,autoPoll=false,currentSiteFilter='',allSitesData=[],allBreakersData=[];
+let detailChartInstance=null;
+let vmChartInstance=null;
+
+let selectedBreaker=null,autoPoll=false,currentSiteFilter='',allSitesData=[],allBreakersData=[],allBreakerSetsData=[];
+let currentView='default'; // 'default','breaker-detail','vm-detail'
+let openSelectors={}; // track which account selectors are open
 
 function updateClock(){document.getElementById('topbar-clock').textContent=new Date().toLocaleTimeString('da-DK');}
 setInterval(updateClock,1000);updateClock();
+
+/* ── View Management ── */
+function showDefaultView(){
+  currentView='default';
+  document.getElementById('default-view').style.display='';
+  document.getElementById('breaker-detail-view').style.display='none';
+  document.getElementById('vm-detail-view').style.display='none';
+}
+
+function showBreakerDetail(breakerId){
+  const b=allBreakersData.find(x=>x.id===breakerId);
+  if(!b)return;
+  currentView='breaker-detail';
+  document.getElementById('default-view').style.display='none';
+  document.getElementById('breaker-detail-view').style.display='';
+  document.getElementById('vm-detail-view').style.display='none';
+
+  document.getElementById('detail-breaker-name').textContent=b.name;
+  document.getElementById('detail-breaker-loc').textContent=(b.site_name||'')+(b.account_name?' - '+b.account_name:'');
+
+  const c=b.consumption||{};
+  const tw=c.avg_total_active_power_w||0;
+  const kwh=c.consumption_kwh||0;
+  const temp=c.avg_temperature_c||0;
+  const pf=c.avg_power_factor||0;
+  const kva=c.avg_total_apparent_power_va?c.avg_total_apparent_power_va/1000:0;
+  const kvar=c.avg_total_reactive_power_var?c.avg_total_reactive_power_var/1000:0;
+  const freq=c.avg_frequency_hz||0;
+
+  // KPI cards
+  document.getElementById('detail-kpis').innerHTML=
+    '<div class="detail-card"><div class="detail-label">Total Effekt</div><div class="detail-value">'+(tw>1000?(tw/1000).toFixed(2)+'<span class="detail-unit">kW</span>':tw.toFixed(0)+'<span class="detail-unit">W</span>')+'</div></div>'+
+    '<div class="detail-card"><div class="detail-label">Forbrug</div><div class="detail-value">'+kwh.toFixed(3)+'<span class="detail-unit">kWh</span></div></div>'+
+    '<div class="detail-card"><div class="detail-label">Temperatur</div><div class="detail-value">'+(temp?temp.toFixed(1)+'<span class="detail-unit">&deg;C</span>':'-')+'</div></div>'+
+    '<div class="detail-card"><div class="detail-label">Frekvens</div><div class="detail-value">'+(freq?freq.toFixed(1)+'<span class="detail-unit">Hz</span>':'-')+'</div></div>'+
+    '<div class="detail-card"><div class="detail-label">Power Factor</div><div class="detail-value">'+(pf?pf.toFixed(3):'-')+'</div></div>'+
+    '<div class="detail-card"><div class="detail-label">Apparent Power</div><div class="detail-value">'+kva.toFixed(3)+'<span class="detail-unit">kVA</span></div></div>'+
+    '<div class="detail-card"><div class="detail-label">Reactive Power</div><div class="detail-value">'+kvar.toFixed(3)+'<span class="detail-unit">kVAr</span></div></div>'+
+    '<div class="detail-card" style="'+(temp>65?'border-color:var(--orange);':'')+'"><div class="detail-label">Status</div><div class="detail-value" style="font-size:14px;">'+(temp>65?'<span style="color:var(--orange)">ADVARSEL</span>':'<span style="color:var(--light-green)">OK</span>')+'</div></div>';
+
+  // Phase detail cards
+  const phases=[
+    {label:'L1 (Fase A)',cls:'L1',w:c.avg_phase_a_active_power_w||0,v:c.avg_phase_a_voltage_v||0,a:c.avg_phase_a_current_a||0,pf:c.avg_phase_a_power_factor||0,va:c.avg_phase_a_apparent_power_va||0,var_:c.avg_phase_a_reactive_power_var||0},
+    {label:'L2 (Fase B)',cls:'L2',w:c.avg_phase_b_active_power_w||0,v:c.avg_phase_b_voltage_v||0,a:c.avg_phase_b_current_a||0,pf:c.avg_phase_b_power_factor||0,va:c.avg_phase_b_apparent_power_va||0,var_:c.avg_phase_b_reactive_power_var||0},
+    {label:'L3 (Fase C)',cls:'L3',w:c.avg_phase_c_active_power_w||0,v:c.avg_phase_c_voltage_v||0,a:c.avg_phase_c_current_a||0,pf:c.avg_phase_c_power_factor||0,va:c.avg_phase_c_apparent_power_va||0,var_:c.avg_phase_c_reactive_power_var||0},
+  ];
+  document.getElementById('detail-phases').innerHTML=phases.map(p=>
+    '<div class="phase-card"><div class="phase-card-title"><span class="phase-badge '+p.cls+'">'+p.cls.replace('L','L')+'</span> '+p.label+'</div>'+
+    '<div class="phase-card-row"><span class="phase-card-label">Aktiv effekt</span><span class="phase-card-val">'+p.w.toFixed(1)+' W</span></div>'+
+    '<div class="phase-card-row"><span class="phase-card-label">Spaending</span><span class="phase-card-val">'+(p.v?p.v.toFixed(1)+' V':'-')+'</span></div>'+
+    '<div class="phase-card-row"><span class="phase-card-label">Stroem</span><span class="phase-card-val">'+(p.a?p.a.toFixed(3)+' A':'-')+'</span></div>'+
+    '<div class="phase-card-row"><span class="phase-card-label">Power Factor</span><span class="phase-card-val">'+(p.pf?p.pf.toFixed(3):'-')+'</span></div>'+
+    '<div class="phase-card-row"><span class="phase-card-label">Apparent (VA)</span><span class="phase-card-val">'+(p.va?(p.va/1000).toFixed(3)+' kVA':'-')+'</span></div>'+
+    '<div class="phase-card-row"><span class="phase-card-label">Reactive (VAr)</span><span class="phase-card-val">'+(p.var_?(p.var_/1000).toFixed(3)+' kVAr':'-')+'</span></div>'+
+    '</div>'
+  ).join('');
+
+  // Load history chart
+  document.getElementById('detail-chart-tag').textContent=b.name;
+  loadBreakerHistory(breakerId);
+}
+
+async function loadBreakerHistory(breakerId){
+  try{
+    const hist=await(await fetch('/api/breakers/'+encodeURIComponent(breakerId)+'/history?limit=48')).json();
+    const ctx=document.getElementById('detailChart');
+    if(detailChartInstance)detailChartInstance.destroy();
+    detailChartInstance=new Chart(ctx,{
+      type:'line',data:{
+        labels:hist.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});}),
+        datasets:[
+          {label:'Total W',data:hist.map(h=>h.avg_total_active_power_w||0),borderColor:C.darkGreen,borderWidth:1.5,pointRadius:0,tension:0.3,fill:false},
+          {label:'L1',data:hist.map(h=>h.avg_phase_a_active_power_w||0),borderColor:C.orange,borderWidth:1,pointRadius:0,tension:0.3,fill:false},
+          {label:'L2',data:hist.map(h=>h.avg_phase_b_active_power_w||0),borderColor:C.lightGreen,borderWidth:1,pointRadius:0,tension:0.3,fill:false},
+          {label:'L3',data:hist.map(h=>h.avg_phase_c_active_power_w||0),borderColor:C.blueGrey,borderWidth:1,pointRadius:0,tension:0.3,fill:false},
+        ]
+      },options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},
+        plugins:{legend:{labels:{color:C.muted,font:{size:9,family:'Figtree'},boxWidth:8}}},
+        scales:{x:{ticks:{color:C.muted,font:{size:9},maxTicksLimit:8},grid:{color:'rgba(89,91,61,0.08)'}},y:{ticks:{color:C.muted,font:{size:9}},grid:{color:'rgba(89,91,61,0.08)'}}}}
+    });
+  }catch(e){}
+}
+
+function showVMDetail(bsId){
+  const bs=allBreakerSetsData.find(x=>x.id===bsId);
+  if(!bs)return;
+  currentView='vm-detail';
+  document.getElementById('default-view').style.display='none';
+  document.getElementById('breaker-detail-view').style.display='none';
+  document.getElementById('vm-detail-view').style.display='';
+
+  document.getElementById('vm-name').textContent=bs.name;
+  document.getElementById('vm-sub').textContent='Virtuel maaler - Forbrug';
+
+  const c=bs.consumption||{};
+  const tw=c.avg_total_active_power_w||0;
+  const kwh=c.consumption_kwh||0;
+  const pf=c.avg_power_factor||0;
+
+  document.getElementById('vm-kpis').innerHTML=
+    '<div class="vm-kpi"><div class="vm-kpi-value">'+(tw>1000?(tw/1000).toFixed(2)+' <span style="font-size:14px;color:var(--muted)">kW</span>':tw.toFixed(0)+' <span style="font-size:14px;color:var(--muted)">W</span>')+'</div><div class="vm-kpi-label">Aktuel effekt</div></div>'+
+    '<div class="vm-kpi"><div class="vm-kpi-value">'+kwh.toFixed(3)+' <span style="font-size:14px;color:var(--muted)">kWh</span></div><div class="vm-kpi-label">Forbrug</div></div>'+
+    '<div class="vm-kpi"><div class="vm-kpi-value">'+(pf?pf.toFixed(3):'-')+'</div><div class="vm-kpi-label">Power Factor</div></div>';
+
+  // Details panel with all consumption fields
+  let detailHtml='';
+  if(Object.keys(c).length){
+    detailHtml='<div style="font-size:11px;">';
+    const fields=Object.entries(c).filter(([k])=>k!=='measured_hour'&&k!=='breaker_set_id');
+    fields.forEach(([k,v])=>{
+      const label=k.replace(/_/g,' ').replace(/avg /,'');
+      detailHtml+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--muted)">'+label+'</span><span style="font-weight:500;">'+
+        (typeof v==='number'?v.toFixed(3):v||'-')+'</span></div>';
+    });
+    detailHtml+='</div>';
+  }else{
+    detailHtml='<div class="no-data">Ingen forbrugsdata</div>';
+  }
+  document.getElementById('vm-details').innerHTML=detailHtml;
+
+  // Load VM history chart
+  document.getElementById('vm-chart-tag').textContent=bs.name;
+  loadVMHistory(bsId);
+}
+
+async function loadVMHistory(bsId){
+  try{
+    const hist=await(await fetch('/api/breaker_sets/'+encodeURIComponent(bsId)+'/history?limit=48')).json();
+    const ctx=document.getElementById('vmChart');
+    if(vmChartInstance)vmChartInstance.destroy();
+    vmChartInstance=new Chart(ctx,{
+      type:'line',data:{
+        labels:hist.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});}),
+        datasets:[
+          {label:'Total W',data:hist.map(h=>h.avg_total_active_power_w||0),borderColor:C.darkGreen,borderWidth:2,pointRadius:1,tension:0.3,fill:{target:'origin',alpha:0.1}},
+        ]
+      },options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},
+        plugins:{legend:{labels:{color:C.muted,font:{size:9,family:'Figtree'},boxWidth:8}}},
+        scales:{x:{ticks:{color:C.muted,font:{size:9},maxTicksLimit:8},grid:{color:'rgba(89,91,61,0.08)'}},y:{ticks:{color:C.muted,font:{size:9}},grid:{color:'rgba(89,91,61,0.08)'}}}}
+    });
+  }catch(e){}
+}
 
 /* ── Account Management ── */
 function renderAccounts(accountsList){
   const el=document.getElementById('accounts-list');
   if(!accountsList||!accountsList.length){el.innerHTML='<div class="no-data" style="padding:10px">Ingen konti tilfojet endnu</div>';return;}
   el.innerHTML=accountsList.map(a=>{
-    const selSites=a.selected_sites||[];
-    const selBS=a.selected_breaker_sets||[];
     return '<div class="account-card" data-id="'+a.id+'">'+
     '<input class="cfg-input name-input" placeholder="Navn" value="'+(a.name||'')+'" onchange="updateAccount(\''+a.id+'\')">'+
     '<input class="cfg-input url-input" placeholder="Base URL" value="'+(a.base_url||'')+'" onchange="updateAccount(\''+a.id+'\')">'+
     '<input class="cfg-input token-input" type="password" placeholder="'+(a.has_token?'(token gemt)':'API token')+'" onchange="updateAccount(\''+a.id+'\')">'+
     '<div class="account-actions">'+
-    '<button class="btn btn-sm btn-ghost" onclick="showSiteSelector(\''+a.id+'\')" title="Vaelg sites">Sites</button>'+
-    '<button class="btn btn-sm btn-primary" onclick="showBSSelector(\''+a.id+'\')" title="Vaelg breaker sets / virtuelle maalere">Breaker Sets'+(selBS.length?' ('+selBS.length+')':' (alle)')+'</button>'+
+    '<button class="btn btn-sm btn-ghost" onclick="toggleSiteSelector(\''+a.id+'\')" title="Vaelg sites">Sites</button>'+
+    '<button class="btn btn-sm btn-primary" onclick="toggleBreakerSelector(\''+a.id+'\')" title="Vaelg breakers">Breakers</button>'+
     '<button class="btn btn-sm btn-primary" onclick="syncAccount(\''+a.id+'\')">Hent</button>'+
     '<button class="btn btn-sm btn-danger" onclick="removeAccount(\''+a.id+'\')">&times;</button>'+
     '</div></div>'+
-    '<div class="account-detail-row" id="sites-row-'+a.id+'" style="display:none"></div>'+
-    '<div class="account-detail-row" id="bs-row-'+a.id+'" style="display:none"></div>';
+    '<div class="selector-panel" id="sites-panel-'+a.id+'"></div>'+
+    '<div class="selector-panel" id="breakers-panel-'+a.id+'"></div>';
   }).join('');
+  // Re-open selectors that were open before
+  Object.keys(openSelectors).forEach(k=>{
+    if(openSelectors[k]==='sites')loadSiteSelector(k);
+    if(openSelectors[k]==='breakers')loadBreakerSelector(k);
+  });
 }
 
 async function loadAccounts(){
@@ -265,7 +494,7 @@ async function loadAccounts(){
 }
 
 async function addAccount(){
-  const resp=await fetch('/api/accounts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Ny konto',base_url:'https://demo.hybird.energy',api_token:''})});
+  await fetch('/api/accounts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Ny konto',base_url:'https://demo.hybird.energy',api_token:''})});
   await loadAccounts();
 }
 
@@ -279,133 +508,217 @@ async function updateAccount(id){
 }
 
 async function removeAccount(id){
+  delete openSelectors[id];
   await fetch('/api/accounts/'+id,{method:'DELETE'});
   await loadAccounts();await refreshAll();
 }
 
-async function showSiteSelector(acctId){
-  const row=document.getElementById('sites-row-'+acctId);
-  if(!row)return;
-  if(row.style.display!=='none'){row.style.display='none';return;}
-  row.innerHTML='<span>Henter sites...</span>';row.style.display='flex';
+/* ── Site Selector (stays open) ── */
+function toggleSiteSelector(acctId){
+  const panel=document.getElementById('sites-panel-'+acctId);
+  if(!panel)return;
+  if(panel.classList.contains('open')){
+    panel.classList.remove('open');
+    delete openSelectors[acctId];
+    return;
+  }
+  // Close breaker panel if open
+  const bp=document.getElementById('breakers-panel-'+acctId);
+  if(bp)bp.classList.remove('open');
+  openSelectors[acctId]='sites';
+  loadSiteSelector(acctId);
+}
+
+async function loadSiteSelector(acctId){
+  const panel=document.getElementById('sites-panel-'+acctId);
+  if(!panel)return;
+  panel.classList.add('open');
+  panel.innerHTML='<span style="font-size:11px;color:var(--muted)">Henter sites...</span>';
   try{
     const availSites=await(await fetch('/api/accounts/'+acctId+'/available_sites')).json();
-    if(availSites.error||!availSites.length){row.innerHTML='<span>Ingen sites fundet - tjek token</span>';return;}
-    // Get current selected_sites from the account
+    if(availSites.error||!availSites.length){panel.innerHTML='<span>Ingen sites fundet - tjek token</span>';return;}
     const accts=await(await fetch('/api/accounts')).json();
     const acct=accts.find(a=>a.id===acctId);
     const selected=acct&&acct.selected_sites?acct.selected_sites:[];
     const allSelected=selected.length===0;
-    row.innerHTML='<span>Sites: </span>'+
-      '<span class="site-tag'+(allSelected?' active':'')+'" onclick="toggleSiteFilter(\''+acctId+'\',\'all\')">Alle</span>'+
-      '<div class="site-tags">'+availSites.map(s=>
-        '<span class="site-tag'+(!allSelected&&selected.includes(s.id)?' active':'')+'" data-site-id="'+s.id+'" onclick="toggleSiteFilter(\''+acctId+'\',\''+s.id+'\')">'+s.name+'</span>'
+    panel.innerHTML='<div class="site-tags">'+
+      '<span class="site-tag'+(allSelected?' active':'')+'" onclick="setSiteFilter(\''+acctId+'\',\'all\')">Alle</span>'+
+      availSites.map(s=>
+        '<span class="site-tag'+(!allSelected&&selected.includes(s.id)?' active':'')+'" onclick="setSiteFilter(\''+acctId+'\',\''+s.id+'\')">'+s.name+'</span>'
       ).join('')+'</div>';
-  }catch(e){row.innerHTML='<span>Fejl: '+e.message+'</span>';}
+  }catch(e){panel.innerHTML='<span>Fejl: '+e.message+'</span>';}
 }
 
-async function toggleSiteFilter(acctId,siteId){
+async function setSiteFilter(acctId,siteId){
   const accts=await(await fetch('/api/accounts')).json();
   const acct=accts.find(a=>a.id===acctId);
   let selected=acct&&acct.selected_sites?[...acct.selected_sites]:[];
-  if(siteId==='all'){
-    selected=[];
-  }else{
+  if(siteId==='all'){selected=[];}
+  else{
     const idx=selected.indexOf(siteId);
-    if(idx>=0)selected.splice(idx,1);
-    else selected.push(siteId);
+    if(idx>=0)selected.splice(idx,1);else selected.push(siteId);
   }
   await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_sites:selected})});
-  await showSiteSelector(acctId);
+  await loadSiteSelector(acctId); // Refresh in-place, stays open
 }
 
-async function showBSSelector(acctId){
-  const row=document.getElementById('bs-row-'+acctId);
-  if(!row)return;
-  if(row.style.display!=='none'){row.style.display='none';return;}
-  row.innerHTML='<span>Henter breaker sets...</span>';row.style.display='flex';
-  row.style.flexDirection='column';row.style.gap='8px';row.style.padding='10px 14px';
+/* ── Breaker Selector (individual breakers within breaker sets) - stays open ── */
+function toggleBreakerSelector(acctId){
+  const panel=document.getElementById('breakers-panel-'+acctId);
+  if(!panel)return;
+  if(panel.classList.contains('open')){
+    panel.classList.remove('open');
+    delete openSelectors[acctId];
+    return;
+  }
+  // Close site panel if open
+  const sp=document.getElementById('sites-panel-'+acctId);
+  if(sp)sp.classList.remove('open');
+  openSelectors[acctId]='breakers';
+  loadBreakerSelector(acctId);
+}
+
+async function loadBreakerSelector(acctId){
+  const panel=document.getElementById('breakers-panel-'+acctId);
+  if(!panel)return;
+  panel.classList.add('open');
+  panel.innerHTML='<span style="font-size:11px;color:var(--muted)">Henter breaker sets og breakers...</span>';
   try{
-    const availBS=await(await fetch('/api/accounts/'+acctId+'/available_breaker_sets')).json();
-    if(availBS.error||!availBS.length){row.innerHTML='<span>Ingen breaker sets fundet - tjek token</span>';return;}
-    const accts=await(await fetch('/api/accounts')).json();
+    const [availBS, accts]=await Promise.all([
+      (await fetch('/api/accounts/'+acctId+'/available_breakers')).json(),
+      (await fetch('/api/accounts')).json()
+    ]);
+    if(availBS.error||!availBS.length){panel.innerHTML='<span>Ingen breaker sets fundet - tjek token</span>';return;}
     const acct=accts.find(a=>a.id===acctId);
-    const selected=acct&&acct.selected_breaker_sets?acct.selected_breaker_sets:[];
-    const allSelected=selected.length===0;
+    const selBS=acct&&acct.selected_breaker_sets?acct.selected_breaker_sets:[];
+    const selBr=acct&&acct.selected_breakers?acct.selected_breakers:[];
+    const allBSSelected=selBS.length===0;
+
     const physical=availBS.filter(bs=>!bs.virtual_meter);
     const virtual=availBS.filter(bs=>bs.virtual_meter);
-    const physIds=physical.map(bs=>String(bs.id));
-    const virtIds=virtual.map(bs=>String(bs.id));
-    // Quick filter buttons
-    let html='<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'+
-      '<span style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">Hurtigvalg:</span>'+
-      '<span class="site-tag'+(allSelected?' active':'')+'" onclick="toggleBSFilter(\''+acctId+'\',\'__all__\')">Alle ('+availBS.length+')</span>'+
-      (physical.length?'<span class="site-tag" onclick="toggleBSFilter(\''+acctId+'\',\'__physical__\')">Kun fysiske ('+physical.length+')</span>':'')+
-      (virtual.length?'<span class="site-tag" onclick="toggleBSFilter(\''+acctId+'\',\'__virtual__\')">Kun virtuelle ('+virtual.length+')</span>':'')+
-      '<span class="site-tag" onclick="toggleBSFilter(\''+acctId+'\',\'__none__\')">Fravelg alle</span>'+
-    '</div>';
-    // Group by site
-    const bySite={};
-    availBS.forEach(bs=>{const sk=bs.site_id||'ukendt';if(!bySite[sk])bySite[sk]=[];bySite[sk].push(bs);});
-    // Physical breaker sets
+
+    let html='<div class="quick-filters"><span style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">Hurtigvalg:</span>'+
+      '<span class="site-tag'+(allBSSelected?' active':'')+'" onclick="quickBSFilter(\''+acctId+'\',\'all\')">Alle ('+availBS.length+')</span>'+
+      (physical.length?'<span class="site-tag" onclick="quickBSFilter(\''+acctId+'\',\'physical\')">Kun fysiske ('+physical.length+')</span>':'')+
+      (virtual.length?'<span class="site-tag" onclick="quickBSFilter(\''+acctId+'\',\'virtual\')">Kun virtuelle ('+virtual.length+')</span>':'')+
+      '<span class="site-tag" onclick="quickBSFilter(\''+acctId+'\',\'none\')">Fravelg alle</span></div>';
+
+    // Physical breaker sets with individual breakers
     if(physical.length){
-      html+='<div style="margin-top:4px;"><span style="font-size:10px;color:var(--dark-green);font-weight:600;letter-spacing:0.5px;">FYSISKE BREAKER SETS</span>'+
-        '<div class="site-tags" style="margin-top:4px;">'+physical.map(bs=>{
-          const isActive=allSelected||selected.includes(String(bs.id));
-          return '<span class="site-tag'+(isActive?' active':'')+'" data-bs-id="'+bs.id+'" onclick="toggleBSFilter(\''+acctId+'\',\''+bs.id+'\')" title="Fysisk | Site: '+(bs.site_id||'?')+'">'+bs.name+'</span>';
-        }).join('')+'</div></div>';
+      html+='<div class="selector-group"><div class="selector-group-title physical">FYSISKE BREAKER SETS</div>';
+      physical.forEach(bs=>{
+        const bsChecked=allBSSelected||selBS.includes(String(bs.id));
+        html+=renderBSGroup(acctId,bs,bsChecked,selBr,allBSSelected);
+      });
+      html+='</div>';
     }
+
     // Virtual meters
     if(virtual.length){
-      html+='<div style="margin-top:4px;"><span style="font-size:10px;color:var(--blue-grey);font-weight:600;letter-spacing:0.5px;">VIRTUELLE MAALERE</span>'+
-        '<div class="site-tags" style="margin-top:4px;">'+virtual.map(bs=>{
-          const isActive=allSelected||selected.includes(String(bs.id));
-          return '<span class="site-tag'+(isActive?' active':'')+'" data-bs-id="'+bs.id+'" onclick="toggleBSFilter(\''+acctId+'\',\''+bs.id+'\')" title="Virtuel maaler | Site: '+(bs.site_id||'?')+'">'+bs.name+' (V)</span>';
-        }).join('')+'</div></div>';
+      html+='<div class="selector-group"><div class="selector-group-title virtual">VIRTUELLE MAALERE</div>';
+      virtual.forEach(bs=>{
+        const bsChecked=allBSSelected||selBS.includes(String(bs.id));
+        html+=renderBSGroup(acctId,bs,bsChecked,selBr,allBSSelected);
+      });
+      html+='</div>';
     }
+
     // Selection count
-    const selCount=allSelected?availBS.length:selected.length;
-    html+='<div style="font-size:10px;color:var(--muted);margin-top:2px;">'+selCount+' / '+availBS.length+' valgt — klik "Hent" for at opdatere data</div>';
-    row.innerHTML=html;
-    // Store available BS data for quick filters
-    row.dataset.physIds=JSON.stringify(physIds);
-    row.dataset.virtIds=JSON.stringify(virtIds);
-    row.dataset.allIds=JSON.stringify(availBS.map(bs=>String(bs.id)));
-  }catch(e){row.innerHTML='<span>Fejl: '+e.message+'</span>';}
+    const totalBS=availBS.length;
+    const selCount=allBSSelected?totalBS:selBS.filter(x=>x!=='__none__').length;
+    html+='<div style="font-size:10px;color:var(--muted);margin-top:6px;">'+selCount+' / '+totalBS+' breaker sets valgt — klik "Hent" for at opdatere data</div>';
+
+    panel.innerHTML=html;
+    // Store data for quick filters
+    panel.dataset.allIds=JSON.stringify(availBS.map(bs=>String(bs.id)));
+    panel.dataset.physIds=JSON.stringify(physical.map(bs=>String(bs.id)));
+    panel.dataset.virtIds=JSON.stringify(virtual.map(bs=>String(bs.id)));
+  }catch(e){panel.innerHTML='<span>Fejl: '+e.message+'</span>';}
 }
 
-async function toggleBSFilter(acctId,bsId){
+function renderBSGroup(acctId,bs,bsChecked,selBr,allBSSelected){
+  const bsId=String(bs.id);
+  const hasBreakers=bs.breakers&&bs.breakers.length>0;
+  let html='<div class="bs-group"><div class="bs-header" onclick="toggleBSExpand(\''+acctId+'-'+bsId+'\')">'+
+    '<span class="arrow" id="arrow-'+acctId+'-'+bsId+'">&#9654;</span>'+
+    '<div class="bs-check'+(bsChecked?' checked':'')+'" onclick="event.stopPropagation();toggleBS(\''+acctId+'\',\''+bsId+'\')">'+(bsChecked?'&#10003;':'')+'</div>'+
+    '<span>'+bs.name+(bs.virtual_meter?' <span style="font-size:9px;color:var(--blue-grey)">(V)</span>':'')+'</span>'+
+    '<span style="font-size:9px;color:var(--muted);margin-left:auto;">'+(hasBreakers?bs.breakers.length+' breakers':'')+'</span>'+
+  '</div>';
+
+  if(hasBreakers){
+    html+='<div class="bs-breakers" id="bs-breakers-'+acctId+'-'+bsId+'">';
+    bs.breakers.forEach(br=>{
+      const brId=String(br.id);
+      // A breaker is checked if its parent BS is checked AND (no individual selection OR this breaker is in selBr)
+      const brChecked=bsChecked&&(selBr.length===0||selBr.includes(brId));
+      html+='<div class="breaker-item" onclick="toggleBreaker(\''+acctId+'\',\''+bsId+'\',\''+brId+'\')">'+
+        '<div class="breaker-check'+(brChecked?' checked':'')+'">'+(brChecked?'&#10003;':'')+'</div>'+
+        '<span>'+br.name+'</span></div>';
+    });
+    html+='</div>';
+  }
+  html+='</div>';
+  return html;
+}
+
+function toggleBSExpand(key){
+  const el=document.getElementById('bs-breakers-'+key);
+  const arrow=document.getElementById('arrow-'+key);
+  if(!el)return;
+  el.classList.toggle('open');
+  if(arrow)arrow.classList.toggle('open');
+}
+
+async function toggleBS(acctId,bsId){
   const accts=await(await fetch('/api/accounts')).json();
   const acct=accts.find(a=>a.id===acctId);
-  let selected=acct&&acct.selected_breaker_sets?[...acct.selected_breaker_sets]:[];
-  const row=document.getElementById('bs-row-'+acctId);
-  if(bsId==='__all__'){
-    selected=[];
-  }else if(bsId==='__none__'){
-    selected=['__none__'];// special: select nothing
-  }else if(bsId==='__physical__'){
-    const physIds=row?JSON.parse(row.dataset.physIds||'[]'):[];
-    selected=[...physIds];
-  }else if(bsId==='__virtual__'){
-    const virtIds=row?JSON.parse(row.dataset.virtIds||'[]'):[];
-    selected=[...virtIds];
-  }else{
-    // Individual toggle
-    if(selected.includes('__none__'))selected=[];// clear special
-    const sid=String(bsId);
-    const idx=selected.indexOf(sid);
-    if(idx>=0)selected.splice(idx,1);
-    else selected.push(sid);
-    // If all are now selected, reset to empty (= all)
-    if(row){
-      const allIds=JSON.parse(row.dataset.allIds||'[]');
-      if(selected.length>=allIds.length&&allIds.every(id=>selected.includes(id)))selected=[];
-    }
+  let selBS=acct&&acct.selected_breaker_sets?[...acct.selected_breaker_sets]:[];
+
+  if(selBS.includes('__none__'))selBS=[];
+  const sid=String(bsId);
+  const idx=selBS.indexOf(sid);
+  if(idx>=0)selBS.splice(idx,1);
+  else selBS.push(sid);
+
+  // If all are selected, reset to empty (=all)
+  const panel=document.getElementById('breakers-panel-'+acctId);
+  if(panel){
+    const allIds=JSON.parse(panel.dataset.allIds||'[]');
+    if(selBS.length>=allIds.length&&allIds.every(id=>selBS.includes(id)))selBS=[];
   }
-  await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_breaker_sets:selected})});
-  await showBSSelector(acctId);
+
+  await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_breaker_sets:selBS})});
+  await loadBreakerSelector(acctId); // Refresh in-place
 }
 
+async function toggleBreaker(acctId,bsId,brId){
+  const accts=await(await fetch('/api/accounts')).json();
+  const acct=accts.find(a=>a.id===acctId);
+  let selBr=acct&&acct.selected_breakers?[...acct.selected_breakers]:[];
+
+  const bid=String(brId);
+  const idx=selBr.indexOf(bid);
+  if(idx>=0)selBr.splice(idx,1);
+  else selBr.push(bid);
+
+  await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_breakers:selBr})});
+  await loadBreakerSelector(acctId); // Refresh in-place
+}
+
+async function quickBSFilter(acctId,mode){
+  const panel=document.getElementById('breakers-panel-'+acctId);
+  let selBS=[];
+  if(mode==='all')selBS=[];
+  else if(mode==='none')selBS=['__none__'];
+  else if(mode==='physical'&&panel)selBS=JSON.parse(panel.dataset.physIds||'[]');
+  else if(mode==='virtual'&&panel)selBS=JSON.parse(panel.dataset.virtIds||'[]');
+
+  await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_breaker_sets:selBS})});
+  await loadBreakerSelector(acctId);
+}
+
+/* ── Sync ── */
 async function syncAccount(id){
   setSyncStatus('syncing','Henter fra konto...');
   const d=await(await fetch('/api/sync/'+id,{method:'POST'})).json();
@@ -413,7 +726,6 @@ async function syncAccount(id){
   await refreshAll();
 }
 
-/* ── Config ── */
 async function saveConfig(){
   await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
     poll_interval_s:parseInt(document.getElementById('cfg-interval').value),
@@ -443,7 +755,6 @@ function setSyncStatus(s,msg){
 async function manualSync(){
   const btn=document.getElementById('btn-sync');
   btn.disabled=true;btn.textContent='Henter...';setSyncStatus('syncing','Kontakter Hybird API...');
-  // Save any unsaved account changes first
   const cards=document.querySelectorAll('.account-card');
   for(const card of cards){await updateAccount(card.dataset.id);}
   try{const d=await(await fetch('/api/sync',{method:'POST'})).json();setSyncStatus(d.ok?'ok':'error',d.message);}
@@ -451,7 +762,7 @@ async function manualSync(){
   btn.disabled=false;btn.textContent='Hent alle';await refreshAll();
 }
 
-async function refreshAll(){await Promise.all([refreshSummary(),refreshSites(),refreshBreakers(),refreshAlerts(),refreshLog()]);}
+async function refreshAll(){await Promise.all([refreshSummary(),refreshSites(),refreshBreakers(),refreshBreakerSets(),refreshAlerts(),refreshLog()]);}
 
 async function refreshSummary(){
   const d=await(await fetch('/api/summary')).json();
@@ -502,6 +813,10 @@ async function refreshBreakers(){
   updateFilteredKPIs();
 }
 
+async function refreshBreakerSets(){
+  allBreakerSetsData=await(await fetch('/api/breaker_sets')).json();
+}
+
 function renderFilteredBreakers(){
   const data=currentSiteFilter?allBreakersData.filter(b=>b.site_id===currentSiteFilter):allBreakersData;
   const tbody=document.getElementById('breaker-tbody');tbody.innerHTML='';
@@ -523,11 +838,27 @@ function renderFilteredBreakers(){
       '<td><span class="phase-badge L2">L2</span> '+l2w.toFixed(0)+'</td><td>'+(l2v?l2v.toFixed(1):'-')+'</td><td>'+(l2a?l2a.toFixed(2):'-')+'</td>'+
       '<td><span class="phase-badge L3">L3</span> '+l3w.toFixed(0)+'</td><td>'+(l3v?l3v.toFixed(1):'-')+'</td><td>'+(l3a?l3a.toFixed(2):'-')+'</td>'+
       '<td class="'+(temp>65?'temp-hi':'')+'">'+(temp?temp.toFixed(1)+'C':'-')+'</td><td>'+(kwh?kwh.toFixed(3):'-')+'</td>';
-    tr.onclick=()=>selectBreaker(b.id,b.name);tbody.appendChild(tr);
+    tr.onclick=()=>showBreakerDetail(b.id);
+    tbody.appendChild(tr);
   });
   const wp=data.filter(b=>(b.consumption?.avg_total_active_power_w||0)>0);
   donutChart.data.labels=wp.map(b=>b.name);donutChart.data.datasets[0].data=wp.map(b=>b.consumption.avg_total_active_power_w);donutChart.update();
-  if(!selectedBreaker&&data.length)selectBreaker(data[0].id,data[0].name);
+
+  // Also update the default line chart with first breaker
+  if(!selectedBreaker&&data.length)selectBreakerChart(data[0].id,data[0].name);
+}
+
+async function selectBreakerChart(id,name){
+  selectedBreaker=id;
+  document.querySelectorAll('.dev-table tr').forEach(tr=>tr.classList.toggle('selected',tr.dataset.id===id));
+  document.getElementById('chart-tag').textContent=name;
+  try{const hist=await(await fetch('/api/breakers/'+encodeURIComponent(id)+'/history?limit=48')).json();
+    lineChart.data.labels=hist.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});});
+    lineChart.data.datasets[0].data=hist.map(h=>h.avg_total_active_power_w||0);
+    lineChart.data.datasets[1].data=hist.map(h=>h.avg_phase_a_active_power_w||0);
+    lineChart.data.datasets[2].data=hist.map(h=>h.avg_phase_b_active_power_w||0);
+    lineChart.data.datasets[3].data=hist.map(h=>h.avg_phase_c_active_power_w||0);
+    lineChart.update();}catch(e){}
 }
 
 function updateFilteredKPIs(){
@@ -544,18 +875,6 @@ function updateFilteredKPIs(){
     document.getElementById('kpi-breakers').textContent=data.length;
     document.getElementById('kpi-breakers-sub').textContent='i valgt site';
   }
-}
-
-async function selectBreaker(id,name){
-  selectedBreaker=id;document.querySelectorAll('.dev-table tr').forEach(tr=>tr.classList.toggle('selected',tr.dataset.id===id));
-  document.getElementById('chart-tag').textContent=name;
-  try{const hist=await(await fetch('/api/breakers/'+encodeURIComponent(id)+'/history?limit=48')).json();
-    lineChart.data.labels=hist.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});});
-    lineChart.data.datasets[0].data=hist.map(h=>h.avg_total_active_power_w||0);
-    lineChart.data.datasets[1].data=hist.map(h=>h.avg_phase_a_active_power_w||0);
-    lineChart.data.datasets[2].data=hist.map(h=>h.avg_phase_b_active_power_w||0);
-    lineChart.data.datasets[3].data=hist.map(h=>h.avg_phase_c_active_power_w||0);
-    lineChart.update();}catch(e){}
 }
 
 async function refreshAlerts(){
