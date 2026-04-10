@@ -176,7 +176,7 @@ main{max-width:1400px;margin:0 auto;padding:24px 28px;}
       <div class="panel-hdr"><div class="panel-title">Breakers - per-fase data</div><span class="panel-tag" id="breaker-count-tag">--</span></div>
       <div class="panel-body" style="padding:0;overflow-x:auto;">
         <table class="dev-table">
-          <thead><tr><th>Navn / Site</th><th>Konto</th><th>Total W</th><th>L1 W</th><th>L1 V</th><th>L1 A</th><th>L2 W</th><th>L2 V</th><th>L2 A</th><th>L3 W</th><th>L3 V</th><th>L3 A</th><th>Temp</th><th>kWh</th></tr></thead>
+          <thead><tr><th>Navn / Site</th><th>Konto</th><th>Total W</th><th>L1 W</th><th>L1 v</th><th>L1 A</th><th>L2 W</th><th>L2 V</th><th>L2 A</th><th>L3 W</th><th>L3 V</th><th>L3 A</th><th>Temp</th><th>kWh</th></tr></thead>
           <tbody id="breaker-tbody"><tr><td colspan="14" class="no-data">Tilfoej en konto og klik "Hent alle"</td></tr></tbody>
         </table>
       </div>
@@ -255,10 +255,12 @@ function renderAccounts(accountsList){
     '</select>'+
     '<div class="account-actions">'+
     '<button class="btn btn-sm btn-ghost" onclick="showSiteSelector(\''+a.id+'\')" title="Vaelg sites">Sites</button>'+
+    '<button class="btn btn-sm btn-ghost" onclick="showBSSelector(\''+a.id+'\')" title="Vaelg breaker sets">BS</button>'+
     '<button class="btn btn-sm btn-primary" onclick="syncAccount(\''+a.id+'\')">Hent</button>'+
     '<button class="btn btn-sm btn-danger" onclick="removeAccount(\''+a.id+'\')">&times;</button>'+
     '</div></div>'+
-    '<div class="account-detail-row" id="sites-row-'+a.id+'" style="display:none"></div>';
+    '<div class="account-detail-row" id="sites-row-'+a.id+'" style="display:none"></div>'+
+    '<div class="account-detail-row" id="bs-row-'+a.id+'" style="display:none"></div>';
   }).join('');
 }
 
@@ -322,6 +324,42 @@ async function toggleSiteFilter(acctId,siteId){
   }
   await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_sites:selected})});
   await showSiteSelector(acctId);
+}
+
+async function showBSSelector(acctId){
+  const row=document.getElementById('bs-row-'+acctId);
+  if(!row)return;
+  if(row.style.display!=='none'){row.style.display='none';return;}
+  row.innerHTML='<span>Henter breaker sets...</span>';row.style.display='flex';
+  try{
+    const availBS=await(await fetch('/api/accounts/'+acctId+'/available_breaker_sets')).json();
+    if(availBS.error||!availBS.length){row.innerHTML='<span>Ingen breaker sets fundet - tjek token</span>';return;}
+    const accts=await(await fetch('/api/accounts')).json();
+    const acct=accts.find(a=>a.id===acctId);
+    const selected=acct&&acct.selected_breaker_sets?acct.selected_breaker_sets:[];
+    const allSelected=selected.length===0;
+    row.innerHTML='<span>BS: </span>'+
+      '<span class="site-tag'+(allSelected?' active':'')+'" onclick="toggleBSFilter(\''+acctId+'\',\'all\')">Alle</span>'+
+      '<div class="site-tags">'+availBS.map(bs=>
+        '<span class="site-tag'+(!allSelected&&selected.includes(String(bs.id))?' active':'')+'" data-bs-id="'+bs.id+'" onclick="toggleBSFilter(\''+acctId+'\',\''+bs.id+'\')" title="'+(bs.virtual_meter?'Virtual':'Physical')+' | Site: '+(bs.site_id||'?')+'">'+bs.name+(bs.virtual_meter?' (V)':'')+'</span>'
+      ).join('')+'</div>';
+  }catch(e){row.innerHTML='<span>Fejl: '+e.message+'</span>';}
+}
+
+async function toggleBSFilter(acctId,bsId){
+  const accts=await(await fetch('/api/accounts')).json();
+  const acct=accts.find(a=>a.id===acctId);
+  let selected=acct&&acct.selected_breaker_sets?[...acct.selected_breaker_sets]:[];
+  if(bsId==='all'){
+    selected=[];
+  }else{
+    const sid=String(bsId);
+    const idx=selected.indexOf(sid);
+    if(idx>=0)selected.splice(idx,1);
+    else selected.push(sid);
+  }
+  await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_breaker_sets:selected})});
+  await showBSSelector(acctId);
 }
 
 async function syncAccount(id){
