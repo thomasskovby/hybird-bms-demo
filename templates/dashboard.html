@@ -176,7 +176,7 @@ main{max-width:1400px;margin:0 auto;padding:24px 28px;}
       <div class="panel-hdr"><div class="panel-title">Breakers - per-fase data</div><span class="panel-tag" id="breaker-count-tag">--</span></div>
       <div class="panel-body" style="padding:0;overflow-x:auto;">
         <table class="dev-table">
-          <thead><tr><th>Navn / Site</th><th>Konto</th><th>Total W</th><th>L1 W</th><th>L1 v</th><th>L1 A</th><th>L2 W</th><th>L2 V</th><th>L2 A</th><th>L3 W</th><th>L3 V</th><th>L3 A</th><th>Temp</th><th>kWh</th></tr></thead>
+          <thead><tr><th>Navn / Site</th><th>Konto</th><th>Total W</th><th>L1 W</th><th>L1 V</th><th>L1 A</th><th>L2 W</th><th>L2 V</th><th>L2 A</th><th>L3 W</th><th>L3 V</th><th>L3 A</th><th>Temp</th><th>kWh</th></tr></thead>
           <tbody id="breaker-tbody"><tr><td colspan="14" class="no-data">Tilfoej en konto og klik "Hent alle"</td></tr></tbody>
         </table>
       </div>
@@ -242,20 +242,15 @@ function renderAccounts(accountsList){
   const el=document.getElementById('accounts-list');
   if(!accountsList||!accountsList.length){el.innerHTML='<div class="no-data" style="padding:10px">Ingen konti tilfojet endnu</div>';return;}
   el.innerHTML=accountsList.map(a=>{
-    const fm=a.fetch_mode||'all';
     const selSites=a.selected_sites||[];
+    const selBS=a.selected_breaker_sets||[];
     return '<div class="account-card" data-id="'+a.id+'">'+
     '<input class="cfg-input name-input" placeholder="Navn" value="'+(a.name||'')+'" onchange="updateAccount(\''+a.id+'\')">'+
     '<input class="cfg-input url-input" placeholder="Base URL" value="'+(a.base_url||'')+'" onchange="updateAccount(\''+a.id+'\')">'+
     '<input class="cfg-input token-input" type="password" placeholder="'+(a.has_token?'(token gemt)':'API token')+'" onchange="updateAccount(\''+a.id+'\')">'+
-    '<select class="mode-select" data-field="fetch_mode" onchange="updateAccount(\''+a.id+'\')">'+
-      '<option value="all"'+(fm==='all'?' selected':'')+'>Hent alt</option>'+
-      '<option value="virtual_only"'+(fm==='virtual_only'?' selected':'')+'>Kun virtuelle</option>'+
-      '<option value="non_virtual"'+(fm==='non_virtual'?' selected':'')+'>Kun fysiske</option>'+
-    '</select>'+
     '<div class="account-actions">'+
     '<button class="btn btn-sm btn-ghost" onclick="showSiteSelector(\''+a.id+'\')" title="Vaelg sites">Sites</button>'+
-    '<button class="btn btn-sm btn-ghost" onclick="showBSSelector(\''+a.id+'\')" title="Vaelg breaker sets">BS</button>'+
+    '<button class="btn btn-sm btn-primary" onclick="showBSSelector(\''+a.id+'\')" title="Vaelg breaker sets / virtuelle maalere">Breaker Sets'+(selBS.length?' ('+selBS.length+')':' (alle)')+'</button>'+
     '<button class="btn btn-sm btn-primary" onclick="syncAccount(\''+a.id+'\')">Hent</button>'+
     '<button class="btn btn-sm btn-danger" onclick="removeAccount(\''+a.id+'\')">&times;</button>'+
     '</div></div>'+
@@ -278,10 +273,8 @@ async function updateAccount(id){
   const card=document.querySelector('.account-card[data-id="'+id+'"]');
   if(!card)return;
   const inputs=card.querySelectorAll('.cfg-input');
-  const modeSelect=card.querySelector('.mode-select');
   const body={name:inputs[0].value.trim(),base_url:inputs[1].value.trim()};
   if(inputs[2].value)body.api_token=inputs[2].value.trim();
-  if(modeSelect)body.fetch_mode=modeSelect.value;
   await fetch('/api/accounts/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
 }
 
@@ -331,6 +324,7 @@ async function showBSSelector(acctId){
   if(!row)return;
   if(row.style.display!=='none'){row.style.display='none';return;}
   row.innerHTML='<span>Henter breaker sets...</span>';row.style.display='flex';
+  row.style.flexDirection='column';row.style.gap='8px';row.style.padding='10px 14px';
   try{
     const availBS=await(await fetch('/api/accounts/'+acctId+'/available_breaker_sets')).json();
     if(availBS.error||!availBS.length){row.innerHTML='<span>Ingen breaker sets fundet - tjek token</span>';return;}
@@ -338,11 +332,45 @@ async function showBSSelector(acctId){
     const acct=accts.find(a=>a.id===acctId);
     const selected=acct&&acct.selected_breaker_sets?acct.selected_breaker_sets:[];
     const allSelected=selected.length===0;
-    row.innerHTML='<span>BS: </span>'+
-      '<span class="site-tag'+(allSelected?' active':'')+'" onclick="toggleBSFilter(\''+acctId+'\',\'all\')">Alle</span>'+
-      '<div class="site-tags">'+availBS.map(bs=>
-        '<span class="site-tag'+(!allSelected&&selected.includes(String(bs.id))?' active':'')+'" data-bs-id="'+bs.id+'" onclick="toggleBSFilter(\''+acctId+'\',\''+bs.id+'\')" title="'+(bs.virtual_meter?'Virtual':'Physical')+' | Site: '+(bs.site_id||'?')+'">'+bs.name+(bs.virtual_meter?' (V)':'')+'</span>'
-      ).join('')+'</div>';
+    const physical=availBS.filter(bs=>!bs.virtual_meter);
+    const virtual=availBS.filter(bs=>bs.virtual_meter);
+    const physIds=physical.map(bs=>String(bs.id));
+    const virtIds=virtual.map(bs=>String(bs.id));
+    // Quick filter buttons
+    let html='<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'+
+      '<span style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">Hurtigvalg:</span>'+
+      '<span class="site-tag'+(allSelected?' active':'')+'" onclick="toggleBSFilter(\''+acctId+'\',\'__all__\')">Alle ('+availBS.length+')</span>'+
+      (physical.length?'<span class="site-tag" onclick="toggleBSFilter(\''+acctId+'\',\'__physical__\')">Kun fysiske ('+physical.length+')</span>':'')+
+      (virtual.length?'<span class="site-tag" onclick="toggleBSFilter(\''+acctId+'\',\'__virtual__\')">Kun virtuelle ('+virtual.length+')</span>':'')+
+      '<span class="site-tag" onclick="toggleBSFilter(\''+acctId+'\',\'__none__\')">Fravelg alle</span>'+
+    '</div>';
+    // Group by site
+    const bySite={};
+    availBS.forEach(bs=>{const sk=bs.site_id||'ukendt';if(!bySite[sk])bySite[sk]=[];bySite[sk].push(bs);});
+    // Physical breaker sets
+    if(physical.length){
+      html+='<div style="margin-top:4px;"><span style="font-size:10px;color:var(--dark-green);font-weight:600;letter-spacing:0.5px;">FYSISKE BREAKER SETS</span>'+
+        '<div class="site-tags" style="margin-top:4px;">'+physical.map(bs=>{
+          const isActive=allSelected||selected.includes(String(bs.id));
+          return '<span class="site-tag'+(isActive?' active':'')+'" data-bs-id="'+bs.id+'" onclick="toggleBSFilter(\''+acctId+'\',\''+bs.id+'\')" title="Fysisk | Site: '+(bs.site_id||'?')+'">'+bs.name+'</span>';
+        }).join('')+'</div></div>';
+    }
+    // Virtual meters
+    if(virtual.length){
+      html+='<div style="margin-top:4px;"><span style="font-size:10px;color:var(--blue-grey);font-weight:600;letter-spacing:0.5px;">VIRTUELLE MAALERE</span>'+
+        '<div class="site-tags" style="margin-top:4px;">'+virtual.map(bs=>{
+          const isActive=allSelected||selected.includes(String(bs.id));
+          return '<span class="site-tag'+(isActive?' active':'')+'" data-bs-id="'+bs.id+'" onclick="toggleBSFilter(\''+acctId+'\',\''+bs.id+'\')" title="Virtuel maaler | Site: '+(bs.site_id||'?')+'">'+bs.name+' (V)</span>';
+        }).join('')+'</div></div>';
+    }
+    // Selection count
+    const selCount=allSelected?availBS.length:selected.length;
+    html+='<div style="font-size:10px;color:var(--muted);margin-top:2px;">'+selCount+' / '+availBS.length+' valgt — klik "Hent" for at opdatere data</div>';
+    row.innerHTML=html;
+    // Store available BS data for quick filters
+    row.dataset.physIds=JSON.stringify(physIds);
+    row.dataset.virtIds=JSON.stringify(virtIds);
+    row.dataset.allIds=JSON.stringify(availBS.map(bs=>String(bs.id)));
   }catch(e){row.innerHTML='<span>Fejl: '+e.message+'</span>';}
 }
 
@@ -350,13 +378,29 @@ async function toggleBSFilter(acctId,bsId){
   const accts=await(await fetch('/api/accounts')).json();
   const acct=accts.find(a=>a.id===acctId);
   let selected=acct&&acct.selected_breaker_sets?[...acct.selected_breaker_sets]:[];
-  if(bsId==='all'){
+  const row=document.getElementById('bs-row-'+acctId);
+  if(bsId==='__all__'){
     selected=[];
+  }else if(bsId==='__none__'){
+    selected=['__none__'];// special: select nothing
+  }else if(bsId==='__physical__'){
+    const physIds=row?JSON.parse(row.dataset.physIds||'[]'):[];
+    selected=[...physIds];
+  }else if(bsId==='__virtual__'){
+    const virtIds=row?JSON.parse(row.dataset.virtIds||'[]'):[];
+    selected=[...virtIds];
   }else{
+    // Individual toggle
+    if(selected.includes('__none__'))selected=[];// clear special
     const sid=String(bsId);
     const idx=selected.indexOf(sid);
     if(idx>=0)selected.splice(idx,1);
     else selected.push(sid);
+    // If all are now selected, reset to empty (= all)
+    if(row){
+      const allIds=JSON.parse(row.dataset.allIds||'[]');
+      if(selected.length>=allIds.length&&allIds.every(id=>selected.includes(id)))selected=[];
+    }
   }
   await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_breaker_sets:selected})});
   await showBSSelector(acctId);
