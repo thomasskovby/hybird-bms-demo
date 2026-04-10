@@ -1,72 +1,72 @@
-# Hybird CTS — Virtual BMS Demo
+# Hybird CTS â Virtual BMS Demo
 
 Et live Building Management System dashboard til demo af Hybird API-integration.
 Viser realtidsdata fra Hybird-installationer i Hybirdss brand.
 
 ---
 
-## 🚀 Deploy på Render.com (anbefalet)
+## ð Deploy pÃ¥ Render.com (anbefalet)
 
-### Mulighed A — Via GitHub (nemmeste)
+### Mulighed A â Via GitHub (nemmeste)
 
-1. Opret en gratis konto på [render.com](https://render.com)
+1. Opret en gratis konto pÃ¥ [render.com](https://render.com)
 2. Push dette projekt til et GitHub repository
-3. Klik **"New → Web Service"** i Render
-4. Vælg dit repository → Render finder `render.yaml` automatisk
-5. Klik **Deploy** — du har en URL inden for ~2 min
+3. Klik **"New â Web Service"** i Render
+4. VÃ¦lg dit repository â Render finder `render.yaml` automatisk
+5. Klik **Deploy** â du har en URL inden for ~2 min
 
-### Mulighed B — Manuel upload
+### Mulighed B â Manuel upload
 
-1. Gå til [render.com](https://render.com) → New → Web Service
-2. Vælg **"Deploy from existing repo"** eller brug **Render CLI**
+1. GÃ¥ til [render.com](https://render.com) â New â Web Service
+2. VÃ¦lg **"Deploy from existing repo"** eller brug **Render CLI**
 3. Build command:  `pip install -r requirements.txt`
 4. Start command:  `gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4`
 5. Environment: Python 3
 
 ---
 
-## 🖥 Lokal test
+## ð¥ Lokal test
 
 ```bash
 pip install -r requirements.txt
 python app.py
-# Åbn http://localhost:5000
+# Ãbn http://localhost:5000
 ```
 
 ---
 
-## ⚙️ Konfiguration i dashboardet
+## âï¸ Konfiguration i dashboardet
 
-Øverst i dashboardet er der et **API Config panel** med tre felter:
+Ãverst i dashboardet er der et **API Config panel** med tre felter:
 
 | Felt | Eksempel | Beskrivelse |
 |------|----------|-------------|
-| Hybird Base URL | `https://copi.hybird.energy` | Ændr til kundens Hybird-instans |
+| Hybird Base URL | `https://copi.hybird.energy` | Ãndr til kundens Hybird-instans |
 | API Token | `dGhvbWFzQGh5YmlyZ...` | Basic auth token (base64) |
-| Site ID | `760` | Breaker Set ID for den ønskede installation |
+| Site ID | `760` | Breaker Set ID for den Ã¸nskede installation |
 
 Klik **"Hent nu"** for at hente live data.
-Aktiver **Auto-poll** for løbende opdatering (30 sek, 1 min, 5 min).
+Aktiver **Auto-poll** for lÃ¸bende opdatering (30 sek, 1 min, 5 min).
 
 ---
 
-## 📡 API endpoints
+## ð¡ API endpoints
 
 | Endpoint | Metode | Beskrivelse |
 |----------|--------|-------------|
 | `/` | GET | Dashboard UI |
-| `/api/devices` | GET | Alle målere + seneste reading |
-| `/api/devices/<id>/history` | GET | Historik for én måler |
+| `/api/devices` | GET | Alle mÃ¥lere + seneste reading |
+| `/api/devices/<id>/history` | GET | Historik for Ã©n mÃ¥ler |
 | `/api/summary` | GET | KPI-overblik |
 | `/api/alerts` | GET | Aktive alarmer |
 | `/api/synclog` | GET | Log over API-kald |
-| `/api/config` | GET/POST | Hent/sæt konfiguration |
+| `/api/config` | GET/POST | Hent/sÃ¦t konfiguration |
 | `/api/sync` | POST | Trigger manuel sync med Hybird |
 | `/api/push` | POST | Push data fra eksternt script |
 
 ---
 
-## 🔌 Push data fra script (hybird_bridge.py)
+## ð Push data fra script (hybird_bridge.py)
 
 ```python
 import requests, base64
@@ -89,7 +89,7 @@ requests.post(f"{BMS_URL}/api/push", json={"readings": readings})
 
 ---
 
-## 🎨 Farver
+## ð¨ Farver
 
 Hybird brand palette bruges konsekvent:
 
@@ -99,3 +99,5 @@ Hybird brand palette bruges konsekvent:
 - Orange `#BB6125`
 - Green-Grey `#A1B1A4`
 - Blue-Grey `#99B0BD`
+
+<!-- deploy trigger 1775838262291 -->
