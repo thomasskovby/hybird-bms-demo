@@ -228,7 +228,7 @@ def fetch_account(acct):
                                 "time": now,
                                 "device": breakers[bkey]["name"],
                                 "account": acct_name,
-                                "msg": f"Hoej temp: {temp} C",
+                                         "msg": f"Hoej temp: {temp} C",
                                 "level": "warning",
                             })
                         fetched += 1
@@ -550,6 +550,23 @@ def get_alerts():
 @app.route("/api/synclog")
 def get_synclog():
     return jsonify(sync_log[:20])
+
+@app.route("/api/proxy/<path:acct_id>/<path:api_path>")
+def api_proxy(acct_id, api_path):
+    """Proxy requests to Hybird API for exploration."""
+    acct = next((a for a in accounts if a["id"] == acct_id), None)
+    if not acct:
+        return jsonify({"error": "Account not found"}), 404
+    base = acct["base_url"].rstrip("/")
+    token = acct["api_token"]
+    hdrs = _headers(token)
+    # Forward query params
+    params = dict(request.args)
+    try:
+        r = req.get(f"{base}/api/v1/{api_path}", headers=hdrs, params=params, timeout=15)
+        return jsonify(r.json()), r.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
