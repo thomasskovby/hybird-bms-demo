@@ -334,7 +334,7 @@ def update_account(acct_id):
 
 @app.route("/api/accounts/<acct_id>", methods=["DELETE"])
 def delete_account(acct_id):
-    global accounts
+    global accounts, alerts, sync_log
     before = len(accounts)
     accounts = [a for a in accounts if a["id"] != acct_id]
     # Clean up data from this account
@@ -342,6 +342,13 @@ def delete_account(acct_id):
         keys_to_remove = [k for k in store if k.startswith(acct_id + ":")]
         for k in keys_to_remove:
             del store[k]
+    # Clean up alerts and sync_log from this account
+    alerts = [a for a in alerts if a.get("account") != acct_id]
+    sync_log = [s for s in sync_log if acct_id not in s.get("msg", "")]
+    # Reset sync status if no accounts left
+    if not accounts:
+        config["sync_status"] = "idle"
+        config["sync_message"] = ""
     return jsonify({"ok": True, "removed": before - len(accounts)})
 
 @app.route("/api/config", methods=["GET"])
