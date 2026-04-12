@@ -76,7 +76,6 @@ body{font-family:'Figtree',sans-serif;background:var(--bg);color:var(--text);min
 .site-tag.active{background:var(--dark-green);color:var(--sand);border-color:var(--light-green);}
 .site-tag:hover{background:rgba(155,155,107,0.25);}
 .site-tag.active:hover{background:var(--light-green);color:var(--dark-green);}
-.site-tags{display:flex;gap:4px;flex-wrap:wrap;}
 
 .config-row2{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
 .interval-group{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);}
@@ -95,80 +94,64 @@ body{font-family:'Figtree',sans-serif;background:var(--bg);color:var(--text);min
 #sync-msg{color:var(--muted);font-style:italic;}
 
 main{max-width:1400px;margin:0 auto;padding:24px 28px;}
-.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px;}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden;}
-.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--light-green));}
-.kpi-label{font-size:10px;color:var(--muted);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:10px;font-weight:500;}
-.kpi-value{font-size:28px;font-weight:700;color:var(--dark-green);line-height:1;}
-.kpi-unit{font-size:14px;color:var(--muted);font-weight:400;margin-left:4px;}
-.kpi-sub{font-size:11px;color:var(--muted);margin-top:8px;}
 
-.map-panel{margin-bottom:22px;}
-#map{height:300px;border-radius:0 0 var(--radius) var(--radius);z-index:1;}
+/* Gauge styling */
+.gauge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:22px;}
+.gauge-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;position:relative;}
+.gauge-card .vm-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px;}
+.gauge-card .vm-name{font-size:13px;font-weight:600;color:var(--dark-green);margin-bottom:12px;}
+.gauge-svg{width:160px;height:90px;margin:0 auto;}
+.gauge-track{fill:none;stroke:var(--surface3);stroke-width:10;stroke-linecap:round;}
+.gauge-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 0.8s ease;}
+.gauge-fill.power{stroke:var(--light-green);}
+.gauge-fill.consumption{stroke:var(--blue-grey);}
+.gauge-value{font-size:22px;font-weight:700;color:var(--dark-green);margin-top:6px;}
+.gauge-unit{font-size:12px;color:var(--muted);font-weight:400;}
+.gauge-sub{font-size:10px;color:var(--muted);margin-top:2px;}
 
-.grid-main{display:grid;grid-template-columns:1fr 340px;gap:18px;margin-bottom:18px;}
-.grid-bottom{display:grid;grid-template-columns:1fr 340px;gap:18px;}
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;}
 .panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .panel-title{font-size:13px;font-weight:600;color:var(--dark-green);}
 .panel-tag{font-size:9px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;padding:3px 7px;background:var(--surface2);border-radius:4px;}
 .panel-body{padding:16px 18px;flex:1;overflow:auto;}
 
-.dev-table{width:100%;border-collapse:collapse;}
-.dev-table th{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;text-align:left;padding:0 6px 10px 6px;border-bottom:1px solid var(--border);}
-.dev-table td{padding:9px 6px;border-bottom:1px solid rgba(89,91,61,0.06);vertical-align:middle;font-size:11px;}
-.dev-table tr:last-child td{border-bottom:none;}
-.dev-table tr{cursor:pointer;transition:background 0.12s;}
-.dev-table tr:hover td{background:rgba(89,91,61,0.04);}
-.dev-table tr.selected td{background:rgba(155,155,107,0.12);}
-.dev-name{font-weight:500;color:var(--dark-green);font-size:12px;}
-.dev-loc{font-size:10px;color:var(--muted);margin-top:2px;}
+.map-panel{margin-bottom:22px;}
+#map{height:280px;border-radius:0 0 var(--radius) var(--radius);z-index:1;}
+
+.grid-2col{display:grid;grid-template-columns:1fr 340px;gap:18px;margin-bottom:18px;}
+.chart-wrap{height:200px;position:relative;}
+
+.alert-list{display:flex;flex-direction:column;gap:8px;}
+.alert-item{display:flex;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:7px;border-left:3px solid var(--orange);font-size:11px;}
+.alert-temp-item{display:flex;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:7px;border-left:3px solid var(--blue-grey);font-size:11px;}
+.alert-temp-item.warn{border-left-color:var(--orange);}
+.no-data{text-align:center;padding:30px 0;color:var(--muted);font-size:12px;font-style:italic;}
+
+/* Breaker detail view */
+.detail-back{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.detail-title{font-size:16px;font-weight:700;color:var(--dark-green);}
+.detail-sub{font-size:11px;color:var(--muted);}
+.breaker-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.breaker-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center;}
+.breaker-kpi-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.breaker-kpi-value{font-size:26px;font-weight:700;color:var(--dark-green);}
+.breaker-kpi-unit{font-size:13px;color:var(--muted);font-weight:400;margin-left:3px;}
+.phase-detail{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.phase-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;}
+.phase-card-title{font-size:11px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.phase-card-row{display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid rgba(89,91,61,0.06);}
+.phase-card-row:last-child{border-bottom:none;}
+.phase-card-label{color:var(--muted);}
+.phase-card-val{font-weight:600;color:var(--dark-green);}
 .phase-badge{font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600;}
 .L1{background:rgba(187,97,37,0.15);color:var(--orange);}
 .L2{background:rgba(155,155,107,0.15);color:var(--light-green);}
 .L3{background:rgba(153,176,189,0.15);color:var(--blue-grey);}
-.pw-bar{width:40px;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:4px;}
-.pw-fill{height:100%;background:var(--light-green);border-radius:2px;transition:width 0.5s;}
-.temp-hi{color:var(--orange);}
-.no-data{text-align:center;padding:30px 0;color:var(--muted);font-size:12px;font-style:italic;}
-.chart-wrap{height:200px;position:relative;}
-.alert-list{display:flex;flex-direction:column;gap:8px;}
-.alert-item{display:flex;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:7px;border-left:3px solid var(--orange);font-size:11px;}
-.log-list{display:flex;flex-direction:column;gap:6px;}
-.log-item{display:flex;gap:8px;align-items:flex-start;font-size:11px;line-height:1.4;padding:6px 0;border-bottom:1px solid var(--border);}
-.log-item:last-child{border-bottom:none;}
-.log-ok{color:var(--light-green);}.log-err{color:var(--orange);}
-.log-ts{color:var(--muted);font-size:10px;flex-shrink:0;}
-
-/* Detail view panels */
-.detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
-.detail-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;}
-.detail-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
-.detail-value{font-size:22px;font-weight:700;color:var(--dark-green);}
-.detail-unit{font-size:11px;color:var(--muted);margin-left:2px;}
-.detail-sub{font-size:10px;color:var(--muted);margin-top:4px;}
-
-.phase-detail{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
-.phase-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;}
-.phase-card-title{font-size:10px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
-.phase-card-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(89,91,61,0.06);}
-.phase-card-row:last-child{border-bottom:none;}
-.phase-card-label{color:var(--muted);}
-.phase-card-val{font-weight:600;color:var(--dark-green);}
-
-/* Virtual meter consumption view */
-.vm-consumption{padding:20px;}
-.vm-title{font-size:16px;font-weight:700;color:var(--dark-green);margin-bottom:4px;}
-.vm-subtitle{font-size:11px;color:var(--muted);margin-bottom:16px;}
-.vm-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
-.vm-kpi{background:var(--surface2);border-radius:8px;padding:16px;text-align:center;}
-.vm-kpi-value{font-size:26px;font-weight:700;color:var(--dark-green);}
-.vm-kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
 
 ::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-.kpi,.panel,.config-hero,.map-panel{animation:fadeUp 0.35s ease both;}
-@media(max-width:1000px){.kpi-strip{grid-template-columns:repeat(2,1fr);}.grid-main,.grid-bottom{grid-template-columns:1fr;}.detail-grid{grid-template-columns:repeat(2,1fr);}.phase-detail{grid-template-columns:1fr;}main{padding:16px;}#map{height:220px;}}
+.gauge-card,.panel,.config-hero,.map-panel{animation:fadeUp 0.35s ease both;}
+@media(max-width:1000px){.gauge-grid{grid-template-columns:repeat(2,1fr);}.grid-2col{grid-template-columns:1fr;}.breaker-kpi-grid{grid-template-columns:repeat(2,1fr);}.phase-detail{grid-template-columns:1fr;}main{padding:16px;}#map{height:200px;}}
 </style>
 </head>
 <body>
@@ -199,75 +182,47 @@ main{max-width:1400px;margin:0 auto;padding:24px 28px;}
         <select id="cfg-interval" onchange="saveConfig()"><option value="30">30 sek</option><option value="60" selected>1 min</option><option value="300">5 min</option></select>
       </div>
       <div class="toggle-wrap" onclick="toggleAutoPoll()"><div class="toggle" id="auto-toggle"></div><span id="auto-label">Auto-poll: <strong>OFF</strong></span></div>
-      <div class="sync-status-bar"><div class="sync-pill idle" id="sync-pill">IDLE</div><span id="sync-msg">Tilfoej en konto og klik "Hent alle"</span></div>
+      <div class="sync-status-bar"><div class="sync-pill idle" id="sync-pill">SYNC</div><span id="sync-msg">Tilfoej en konto og klik "Hent alle"</span></div>
     </div>
   </div>
 </div>
 
 <main>
-  <div class="kpi-strip">
-    <div class="kpi" style="--accent:var(--light-green)"><div class="kpi-label">Total Effekt</div><div class="kpi-value" id="kpi-power">--<span class="kpi-unit">W</span></div><div class="kpi-sub" id="kpi-power-sub">--</div></div>
-    <div class="kpi" style="--accent:var(--blue-grey)"><div class="kpi-label">Forbrug</div><div class="kpi-value" id="kpi-kwh">--<span class="kpi-unit">kWh</span></div><div class="kpi-sub">Seneste time</div></div>
-    <div class="kpi" style="--accent:var(--green-grey)"><div class="kpi-label">Sites</div><div class="kpi-value" id="kpi-sites">--</div><div class="kpi-sub" id="kpi-sites-sub">--</div></div>
-    <div class="kpi" style="--accent:var(--sand-dim)"><div class="kpi-label">Breakers</div><div class="kpi-value" id="kpi-breakers">--</div><div class="kpi-sub" id="kpi-breakers-sub">--</div></div>
-    <div class="kpi" style="--accent:var(--orange)"><div class="kpi-label">Alarmer</div><div class="kpi-value" id="kpi-alerts">0</div><div class="kpi-sub">Aktive advarsler</div></div>
-  </div>
-
-  <div class="panel map-panel"><div class="panel-hdr"><div class="panel-title">Oversigtskort - Sites</div><span class="panel-tag" id="map-tag">--</span></div><div id="map"></div></div>
-
-  <!-- Adaptive main content area -->
   <div id="main-content">
-    <!-- Default view: breaker table + side panels -->
+
+    <!-- DEFAULT VIEW: Gauges, Alarmer+Temp, Kort, Forbrugshistorik -->
     <div id="default-view">
-      <div class="grid-main">
-        <div class="panel">
-          <div class="panel-hdr"><div class="panel-title">Breakers - per-fase data</div><span class="panel-tag" id="breaker-count-tag">--</span></div>
-          <div class="panel-body" style="padding:0;overflow-x:auto;">
-            <table class="dev-table">
-              <thead><tr><th>Navn / Site</th><th>Konto</th><th>Total W</th><th>L1 W</th><th>L1 V</th><th>L1 A</th><th>L2 W</th><th>L2 V</th><th>L2 A</th><th>L3 W</th><th>L3 V</th><th>L3 A</th><th>Temp</th><th>kWh</th></tr></thead>
-              <tbody id="breaker-tbody"><tr><td colspan="14" class="no-data">Tilfoej en konto og klik "Hent alle"</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:18px;">
-          <div class="panel"><div class="panel-hdr"><div class="panel-title">Alarmer</div><span class="panel-tag">Live</span></div><div class="panel-body"><div class="alert-list" id="alert-list"><div class="no-data">Ingen alarmer</div></div></div></div>
-          <div class="panel"><div class="panel-hdr"><div class="panel-title">API Sync Log</div><span class="panel-tag">Seneste kald</span></div><div class="panel-body"><div class="log-list" id="sync-log-list"><div class="no-data">Ingen kald endnu</div></div></div></div>
-        </div>
+
+      <!-- VM Gauges -->
+      <div class="gauge-grid" id="gauge-grid">
+        <div class="no-data" style="grid-column:1/-1;padding:20px;">Hent data for at se virtuelle maalere</div>
       </div>
-      <div class="grid-bottom">
-        <div class="panel"><div class="panel-hdr"><div class="panel-title">Effekthistorik - per fase</div><span class="panel-tag" id="chart-tag">--</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="powerChart"></canvas></div></div></div>
-        <div class="panel"><div class="panel-hdr"><div class="panel-title">Fordeling nu</div><span class="panel-tag">Alle breakers</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="donutChart"></canvas></div></div></div>
+
+      <!-- Map -->
+      <div class="panel map-panel"><div class="panel-hdr"><div class="panel-title">Oversigtskort - Sites</div><span class="panel-tag" id="map-tag">--</span></div><div id="map"></div></div>
+
+      <!-- Alarmer + Temp & Forbrugshistorik -->
+      <div class="grid-2col">
+        <div class="panel"><div class="panel-hdr"><div class="panel-title">Forbrugshistorik</div><span class="panel-tag" id="chart-tag">kWh</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="consumptionChart"></canvas></div></div></div>
+        <div class="panel"><div class="panel-hdr"><div class="panel-title">Alarmer &amp; Temperatur</div><span class="panel-tag">Live</span></div><div class="panel-body" style="max-height:300px;overflow-y:auto;"><div class="alert-list" id="alerts-temp-list"><div class="no-data">Ingen alarmer</div></div></div></div>
       </div>
     </div>
 
-    <!-- Breaker detail view (full electrical data) -->
+    <!-- BREAKER DETAIL VIEW -->
     <div id="breaker-detail-view" style="display:none;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <div class="detail-back">
         <button class="btn btn-sm btn-ghost" onclick="showDefaultView()">&#8592; Tilbage</button>
-        <div><div style="font-size:16px;font-weight:700;color:var(--dark-green);" id="detail-breaker-name">--</div>
-        <div style="font-size:11px;color:var(--muted);" id="detail-breaker-loc">--</div></div>
+        <div><div class="detail-title" id="detail-breaker-name">--</div>
+        <div class="detail-sub" id="detail-breaker-loc">--</div></div>
       </div>
-      <div class="detail-grid" id="detail-kpis"></div>
-      <div class="phase-detail" id="detail-phases"></div>
-      <div class="grid-bottom">
-        <div class="panel"><div class="panel-hdr"><div class="panel-title">Effekthistorik</div><span class="panel-tag" id="detail-chart-tag">--</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="detailChart"></canvas></div></div></div>
-        <div class="panel"><div class="panel-hdr"><div class="panel-title">Alarmer &amp; Log</div></div><div class="panel-body"><div class="alert-list" id="detail-alerts"><div class="no-data">Ingen alarmer</div></div></div></div>
+      <div class="breaker-kpi-grid" id="breaker-kpis"></div>
+      <div class="phase-detail" id="breaker-phases"></div>
+      <div class="grid-2col">
+        <div class="panel"><div class="panel-hdr"><div class="panel-title">Forbrugshistorik</div><span class="panel-tag" id="detail-chart-tag">--</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="detailChart"></canvas></div></div></div>
+        <div class="panel"><div class="panel-hdr"><div class="panel-title">Alarmer</div></div><div class="panel-body"><div class="alert-list" id="detail-alerts"><div class="no-data">Ingen alarmer for denne breaker</div></div></div></div>
       </div>
     </div>
 
-    <!-- Virtual meter consumption view -->
-    <div id="vm-detail-view" style="display:none;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-        <button class="btn btn-sm btn-ghost" onclick="showDefaultView()">&#8592; Tilbage</button>
-        <div><div class="vm-title" id="vm-name">--</div>
-        <div class="vm-subtitle" id="vm-sub">Virtuel maaler - Forbrug</div></div>
-      </div>
-      <div class="vm-kpi-row" id="vm-kpis"></div>
-      <div class="grid-bottom">
-        <div class="panel"><div class="panel-hdr"><div class="panel-title">Forbrugshistorik</div><span class="panel-tag" id="vm-chart-tag">kWh</span></div><div class="panel-body"><div class="chart-wrap"><canvas id="vmChart"></canvas></div></div></div>
-        <div class="panel"><div class="panel-hdr"><div class="panel-title">Detaljer</div></div><div class="panel-body"><div id="vm-details" class="no-data">Ingen data</div></div></div>
-      </div>
-    </div>
   </div>
 </main>
 
@@ -294,39 +249,111 @@ function updateMap(sites){
   document.getElementById('map-tag').textContent=bounds.length+' sites med GPS';
 }
 
-// Charts
-const lineChart=new Chart(document.getElementById('powerChart'),{
-  type:'line',data:{labels:[],datasets:[
-    {label:'Total W',data:[],borderColor:C.darkGreen,borderWidth:1.5,pointRadius:0,tension:0.3,fill:false},
-    {label:'L1 W',data:[],borderColor:C.orange,borderWidth:1,pointRadius:0,tension:0.3,fill:false},
-    {label:'L2 W',data:[],borderColor:C.lightGreen,borderWidth:1,pointRadius:0,tension:0.3,fill:false},
-    {label:'L3 W',data:[],borderColor:C.blueGrey,borderWidth:1,pointRadius:0,tension:0.3,fill:false},
-  ]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},
+// Consumption chart
+const consumptionChart=new Chart(document.getElementById('consumptionChart'),{
+  type:'bar',data:{labels:[],datasets:[{
+    label:'Forbrug (kWh)',data:[],backgroundColor:'rgba(153,176,189,0.5)',borderColor:C.blueGrey,borderWidth:1,borderRadius:4,
+  }]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},
     plugins:{legend:{labels:{color:C.muted,font:{size:9,family:'Figtree'},boxWidth:8}}},
-    scales:{x:{ticks:{color:C.muted,font:{size:9},maxTicksLimit:8},grid:{color:'rgba(89,91,61,0.08)'}},y:{ticks:{color:C.muted,font:{size:9}},grid:{color:'rgba(89,91,61,0.08)'}}}}
-});
-
-const donutChart=new Chart(document.getElementById('donutChart'),{
-  type:'doughnut',data:{labels:[],datasets:[{data:[],backgroundColor:[C.lightGreen,C.blueGrey,C.orange,C.greenGrey,C.darkGreen,'#7A9F8D','#C4946B','#8B7355','#6B8E7A','#A0856C'],borderColor:'#FFF',borderWidth:3}]},
-  options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},plugins:{legend:{position:'bottom',labels:{color:C.muted,font:{size:9,family:'Figtree'},boxWidth:8,padding:8}}},cutout:'60%'}
+    scales:{x:{ticks:{color:C.muted,font:{size:9},maxTicksLimit:12},grid:{color:'rgba(89,91,61,0.08)'}},y:{ticks:{color:C.muted,font:{size:9}},grid:{color:'rgba(89,91,61,0.08)'}}}}
 });
 
 let detailChartInstance=null;
-let vmChartInstance=null;
-
-let selectedBreaker=null,autoPoll=false,currentSiteFilter='',allSitesData=[],allBreakersData=[],allBreakerSetsData=[];
-let currentView='default'; // 'default','breaker-detail','vm-detail'
-let openSelectors={}; // track which account selectors are open
+let autoPoll=false,currentSiteFilter='',allSitesData=[],allBreakersData=[],allBreakerSetsData=[];
+let currentView='default';
+let openSelectors={};
+let openBSExpand={};
 
 function updateClock(){document.getElementById('topbar-clock').textContent=new Date().toLocaleTimeString('da-DK');}
 setInterval(updateClock,1000);updateClock();
+
+/* ── Gauge helper ── */
+function makeGaugeSVG(pct,cls){
+  // Semi-circle gauge: arc from 180 to 0 degrees
+  const r=60,cx=80,cy=75;
+  const circumHalf=Math.PI*r; // half circle
+  const offset=circumHalf*(1-Math.min(pct,1));
+  return '<svg class="gauge-svg" viewBox="0 0 160 90">'+
+    '<path class="gauge-track" d="M 15 75 A 60 60 0 0 1 145 75"/>'+
+    '<path class="gauge-fill '+cls+'" d="M 15 75 A 60 60 0 0 1 145 75" stroke-dasharray="'+circumHalf.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'"/>'+
+    '</svg>';
+}
+
+function renderGauges(bsSets){
+  const grid=document.getElementById('gauge-grid');
+  const vms=bsSets.filter(bs=>bs.virtual_meter);
+  if(!vms.length&&!bsSets.length){grid.innerHTML='<div class="no-data" style="grid-column:1/-1;padding:20px;">Hent data for at se virtuelle maalere</div>';return;}
+  if(!vms.length){grid.innerHTML='<div class="no-data" style="grid-column:1/-1;padding:20px;">Ingen virtuelle maalere fundet</div>';return;}
+
+  let html='';
+  vms.forEach(bs=>{
+    const c=bs.consumption||{};
+    const pw=c.avg_total_active_power_w||0;
+    const kwh=c.consumption_kwh||0;
+    // Power gauge (max ~10kW for visual scale)
+    const maxPw=Math.max(10000,...vms.map(v=>(v.consumption?.avg_total_active_power_w||0)*1.2));
+    const pwPct=pw/maxPw;
+    // Consumption gauge (max based on data)
+    const maxKwh=Math.max(10,...vms.map(v=>(v.consumption?.consumption_kwh||0)*1.2));
+    const kwhPct=kwh/maxKwh;
+
+    const pwStr=pw>1000?(pw/1000).toFixed(2)+' <span class="gauge-unit">kW</span>':pw.toFixed(0)+' <span class="gauge-unit">W</span>';
+    const kwhStr=kwh.toFixed(2)+' <span class="gauge-unit">kWh</span>';
+
+    html+='<div class="gauge-card">'+
+      '<div class="vm-label">Virtuel Maaler</div>'+
+      '<div class="vm-name">'+bs.name+'</div>'+
+      makeGaugeSVG(pwPct,'power')+
+      '<div class="gauge-value">'+pwStr+'</div>'+
+      '<div class="gauge-sub">Aktuel effekt</div>'+
+      '</div>';
+    html+='<div class="gauge-card">'+
+      '<div class="vm-label">Virtuel Maaler</div>'+
+      '<div class="vm-name">'+bs.name+'</div>'+
+      makeGaugeSVG(kwhPct,'consumption')+
+      '<div class="gauge-value">'+kwhStr+'</div>'+
+      '<div class="gauge-sub">Forbrug (seneste time)</div>'+
+      '</div>';
+  });
+  grid.innerHTML=html;
+}
+
+/* ── Alerts + Temperature ── */
+function renderAlertsAndTemp(alertsArr, breakersArr){
+  const el=document.getElementById('alerts-temp-list');
+  let html='';
+
+  // Alarms first
+  if(alertsArr.length){
+    alertsArr.slice(-10).reverse().forEach(a=>{
+      html+='<div class="alert-item"><div style="flex-shrink:0;color:var(--orange);font-weight:700">!</div><div><div style="color:var(--dark-green)">'+a.device+' - '+a.msg+'</div><div style="font-size:10px;color:var(--muted)">'+new Date(a.time+'Z').toLocaleTimeString('da-DK')+'</div></div></div>';
+    });
+  }
+
+  // Temperature readings from all breakers
+  const tempBreakers=breakersArr.filter(b=>{
+    const t=b.consumption?.avg_temperature_c;
+    return t&&t>0;
+  }).sort((a,b)=>(b.consumption.avg_temperature_c||0)-(a.consumption.avg_temperature_c||0));
+
+  if(tempBreakers.length){
+    tempBreakers.forEach(b=>{
+      const temp=b.consumption.avg_temperature_c;
+      const isWarn=temp>65;
+      html+='<div class="alert-temp-item'+(isWarn?' warn':'')+'"><div style="flex-shrink:0;font-size:14px;">'+(isWarn?'&#9888;':'&#127777;')+'</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><span style="color:var(--dark-green);font-weight:500">'+b.name+'</span><span style="font-weight:700;'+(isWarn?'color:var(--orange)':'color:var(--dark-green)')+'">'+temp.toFixed(1)+' &deg;C</span></div><div style="font-size:10px;color:var(--muted)">'+(b.site_name||'')+' - Klemme-temperatur</div></div></div>';
+    });
+  }
+
+  if(!html)html='<div class="no-data">Ingen alarmer eller temperaturdata</div>';
+  el.innerHTML=html;
+}
 
 /* ── View Management ── */
 function showDefaultView(){
   currentView='default';
   document.getElementById('default-view').style.display='';
   document.getElementById('breaker-detail-view').style.display='none';
-  document.getElementById('vm-detail-view').style.display='none';
+  setTimeout(()=>map.invalidateSize(),100);
 }
 
 function showBreakerDetail(breakerId){
@@ -335,49 +362,50 @@ function showBreakerDetail(breakerId){
   currentView='breaker-detail';
   document.getElementById('default-view').style.display='none';
   document.getElementById('breaker-detail-view').style.display='';
-  document.getElementById('vm-detail-view').style.display='none';
 
   document.getElementById('detail-breaker-name').textContent=b.name;
   document.getElementById('detail-breaker-loc').textContent=(b.site_name||'')+(b.account_name?' - '+b.account_name:'');
 
   const c=b.consumption||{};
   const tw=c.avg_total_active_power_w||0;
-  const kwh=c.consumption_kwh||0;
-  const temp=c.avg_temperature_c||0;
   const pf=c.avg_power_factor||0;
-  const kva=c.avg_total_apparent_power_va?c.avg_total_apparent_power_va/1000:0;
-  const kvar=c.avg_total_reactive_power_var?c.avg_total_reactive_power_var/1000:0;
-  const freq=c.avg_frequency_hz||0;
+  const va=c.avg_total_apparent_power_va||0;
+  const var_=c.avg_total_reactive_power_var||0;
 
-  // KPI cards
-  document.getElementById('detail-kpis').innerHTML=
-    '<div class="detail-card"><div class="detail-label">Total Effekt</div><div class="detail-value">'+(tw>1000?(tw/1000).toFixed(2)+'<span class="detail-unit">kW</span>':tw.toFixed(0)+'<span class="detail-unit">W</span>')+'</div></div>'+
-    '<div class="detail-card"><div class="detail-label">Forbrug</div><div class="detail-value">'+kwh.toFixed(3)+'<span class="detail-unit">kWh</span></div></div>'+
-    '<div class="detail-card"><div class="detail-label">Temperatur</div><div class="detail-value">'+(temp?temp.toFixed(1)+'<span class="detail-unit">&deg;C</span>':'-')+'</div></div>'+
-    '<div class="detail-card"><div class="detail-label">Frekvens</div><div class="detail-value">'+(freq?freq.toFixed(1)+'<span class="detail-unit">Hz</span>':'-')+'</div></div>'+
-    '<div class="detail-card"><div class="detail-label">Power Factor</div><div class="detail-value">'+(pf?pf.toFixed(3):'-')+'</div></div>'+
-    '<div class="detail-card"><div class="detail-label">Apparent Power</div><div class="detail-value">'+kva.toFixed(3)+'<span class="detail-unit">kVA</span></div></div>'+
-    '<div class="detail-card"><div class="detail-label">Reactive Power</div><div class="detail-value">'+kvar.toFixed(3)+'<span class="detail-unit">kVAr</span></div></div>'+
-    '<div class="detail-card" style="'+(temp>65?'border-color:var(--orange);':'')+'"><div class="detail-label">Status</div><div class="detail-value" style="font-size:14px;">'+(temp>65?'<span style="color:var(--orange)">ADVARSEL</span>':'<span style="color:var(--light-green)">OK</span>')+'</div></div>';
-
-  // Phase detail cards
+  // Per-phase averages for top KPIs
   const phases=[
+    {v:c.avg_phase_a_voltage_v||0,a:c.avg_phase_a_current_a||0},
+    {v:c.avg_phase_b_voltage_v||0,a:c.avg_phase_b_current_a||0},
+    {v:c.avg_phase_c_voltage_v||0,a:c.avg_phase_c_current_a||0},
+  ];
+  const avgV=phases.filter(p=>p.v>0).reduce((s,p,i,a)=>s+p.v/a.length,0);
+  const totalA=phases.reduce((s,p)=>s+p.a,0);
+
+  document.getElementById('breaker-kpis').innerHTML=
+    '<div class="breaker-kpi"><div class="breaker-kpi-label">Aktiv Effekt</div><div class="breaker-kpi-value">'+(tw>1000?(tw/1000).toFixed(2)+'<span class="breaker-kpi-unit">kW</span>':tw.toFixed(0)+'<span class="breaker-kpi-unit">W</span>')+'</div></div>'+
+    '<div class="breaker-kpi"><div class="breaker-kpi-label">Spaending</div><div class="breaker-kpi-value">'+(avgV?avgV.toFixed(1):'--')+'<span class="breaker-kpi-unit">V</span></div></div>'+
+    '<div class="breaker-kpi"><div class="breaker-kpi-label">Stroem</div><div class="breaker-kpi-value">'+(totalA?totalA.toFixed(3):'--')+'<span class="breaker-kpi-unit">A</span></div></div>'+
+    '<div class="breaker-kpi"><div class="breaker-kpi-label">Power Factor</div><div class="breaker-kpi-value">'+(pf?pf.toFixed(3):'-')+'</div></div>'+
+    '<div class="breaker-kpi"><div class="breaker-kpi-label">Apparent (VA)</div><div class="breaker-kpi-value">'+(va?(va/1000).toFixed(3):'--')+'<span class="breaker-kpi-unit">kVA</span></div></div>'+
+    '<div class="breaker-kpi"><div class="breaker-kpi-label">Reactive (VAr)</div><div class="breaker-kpi-value">'+(var_?(var_/1000).toFixed(3):'--')+'<span class="breaker-kpi-unit">kVAr</span></div></div>';
+
+  // Phase cards
+  const phaseData=[
     {label:'L1 (Fase A)',cls:'L1',w:c.avg_phase_a_active_power_w||0,v:c.avg_phase_a_voltage_v||0,a:c.avg_phase_a_current_a||0,pf:c.avg_phase_a_power_factor||0,va:c.avg_phase_a_apparent_power_va||0,var_:c.avg_phase_a_reactive_power_var||0},
     {label:'L2 (Fase B)',cls:'L2',w:c.avg_phase_b_active_power_w||0,v:c.avg_phase_b_voltage_v||0,a:c.avg_phase_b_current_a||0,pf:c.avg_phase_b_power_factor||0,va:c.avg_phase_b_apparent_power_va||0,var_:c.avg_phase_b_reactive_power_var||0},
     {label:'L3 (Fase C)',cls:'L3',w:c.avg_phase_c_active_power_w||0,v:c.avg_phase_c_voltage_v||0,a:c.avg_phase_c_current_a||0,pf:c.avg_phase_c_power_factor||0,va:c.avg_phase_c_apparent_power_va||0,var_:c.avg_phase_c_reactive_power_var||0},
   ];
-  document.getElementById('detail-phases').innerHTML=phases.map(p=>
-    '<div class="phase-card"><div class="phase-card-title"><span class="phase-badge '+p.cls+'">'+p.cls.replace('L','L')+'</span> '+p.label+'</div>'+
+  document.getElementById('breaker-phases').innerHTML=phaseData.map(p=>
+    '<div class="phase-card"><div class="phase-card-title"><span class="phase-badge '+p.cls+'">'+p.cls+'</span> '+p.label+'</div>'+
     '<div class="phase-card-row"><span class="phase-card-label">Aktiv effekt</span><span class="phase-card-val">'+p.w.toFixed(1)+' W</span></div>'+
     '<div class="phase-card-row"><span class="phase-card-label">Spaending</span><span class="phase-card-val">'+(p.v?p.v.toFixed(1)+' V':'-')+'</span></div>'+
     '<div class="phase-card-row"><span class="phase-card-label">Stroem</span><span class="phase-card-val">'+(p.a?p.a.toFixed(3)+' A':'-')+'</span></div>'+
     '<div class="phase-card-row"><span class="phase-card-label">Power Factor</span><span class="phase-card-val">'+(p.pf?p.pf.toFixed(3):'-')+'</span></div>'+
-    '<div class="phase-card-row"><span class="phase-card-label">Apparent (VA)</span><span class="phase-card-val">'+(p.va?(p.va/1000).toFixed(3)+' kVA':'-')+'</span></div>'+
-    '<div class="phase-card-row"><span class="phase-card-label">Reactive (VAr)</span><span class="phase-card-val">'+(p.var_?(p.var_/1000).toFixed(3)+' kVAr':'-')+'</span></div>'+
+    '<div class="phase-card-row"><span class="phase-card-label">Apparent (VA)</span><span class="phase-card-val">'+(p.va?p.va.toFixed(1)+' VA':'-')+'</span></div>'+
+    '<div class="phase-card-row"><span class="phase-card-label">Reactive (VAr)</span><span class="phase-card-val">'+(p.var_?p.var_.toFixed(1)+' VAr':'-')+'</span></div>'+
     '</div>'
   ).join('');
 
-  // Load history chart
   document.getElementById('detail-chart-tag').textContent=b.name;
   loadBreakerHistory(breakerId);
 }
@@ -388,79 +416,46 @@ async function loadBreakerHistory(breakerId){
     const ctx=document.getElementById('detailChart');
     if(detailChartInstance)detailChartInstance.destroy();
     detailChartInstance=new Chart(ctx,{
-      type:'line',data:{
+      type:'bar',data:{
         labels:hist.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});}),
         datasets:[
-          {label:'Total W',data:hist.map(h=>h.avg_total_active_power_w||0),borderColor:C.darkGreen,borderWidth:1.5,pointRadius:0,tension:0.3,fill:false},
-          {label:'L1',data:hist.map(h=>h.avg_phase_a_active_power_w||0),borderColor:C.orange,borderWidth:1,pointRadius:0,tension:0.3,fill:false},
-          {label:'L2',data:hist.map(h=>h.avg_phase_b_active_power_w||0),borderColor:C.lightGreen,borderWidth:1,pointRadius:0,tension:0.3,fill:false},
-          {label:'L3',data:hist.map(h=>h.avg_phase_c_active_power_w||0),borderColor:C.blueGrey,borderWidth:1,pointRadius:0,tension:0.3,fill:false},
+          {label:'Forbrug (kWh)',data:hist.map(h=>h.consumption_kwh||0),backgroundColor:'rgba(153,176,189,0.5)',borderColor:C.blueGrey,borderWidth:1,borderRadius:4},
         ]
       },options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},
         plugins:{legend:{labels:{color:C.muted,font:{size:9,family:'Figtree'},boxWidth:8}}},
-        scales:{x:{ticks:{color:C.muted,font:{size:9},maxTicksLimit:8},grid:{color:'rgba(89,91,61,0.08)'}},y:{ticks:{color:C.muted,font:{size:9}},grid:{color:'rgba(89,91,61,0.08)'}}}}
+        scales:{x:{ticks:{color:C.muted,font:{size:9},maxTicksLimit:12},grid:{color:'rgba(89,91,61,0.08)'}},y:{ticks:{color:C.muted,font:{size:9}},grid:{color:'rgba(89,91,61,0.08)'}}}}
     });
   }catch(e){}
 }
 
-function showVMDetail(bsId){
-  const bs=allBreakerSetsData.find(x=>x.id===bsId);
-  if(!bs)return;
-  currentView='vm-detail';
-  document.getElementById('default-view').style.display='none';
-  document.getElementById('breaker-detail-view').style.display='none';
-  document.getElementById('vm-detail-view').style.display='';
-
-  document.getElementById('vm-name').textContent=bs.name;
-  document.getElementById('vm-sub').textContent='Virtuel maaler - Forbrug';
-
-  const c=bs.consumption||{};
-  const tw=c.avg_total_active_power_w||0;
-  const kwh=c.consumption_kwh||0;
-  const pf=c.avg_power_factor||0;
-
-  document.getElementById('vm-kpis').innerHTML=
-    '<div class="vm-kpi"><div class="vm-kpi-value">'+(tw>1000?(tw/1000).toFixed(2)+' <span style="font-size:14px;color:var(--muted)">kW</span>':tw.toFixed(0)+' <span style="font-size:14px;color:var(--muted)">W</span>')+'</div><div class="vm-kpi-label">Aktuel effekt</div></div>'+
-    '<div class="vm-kpi"><div class="vm-kpi-value">'+kwh.toFixed(3)+' <span style="font-size:14px;color:var(--muted)">kWh</span></div><div class="vm-kpi-label">Forbrug</div></div>'+
-    '<div class="vm-kpi"><div class="vm-kpi-value">'+(pf?pf.toFixed(3):'-')+'</div><div class="vm-kpi-label">Power Factor</div></div>';
-
-  // Details panel with all consumption fields
-  let detailHtml='';
-  if(Object.keys(c).length){
-    detailHtml='<div style="font-size:11px;">';
-    const fields=Object.entries(c).filter(([k])=>k!=='measured_hour'&&k!=='breaker_set_id');
-    fields.forEach(([k,v])=>{
-      const label=k.replace(/_/g,' ').replace(/avg /,'');
-      detailHtml+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--muted)">'+label+'</span><span style="font-weight:500;">'+
-        (typeof v==='number'?v.toFixed(3):v||'-')+'</span></div>';
-    });
-    detailHtml+='</div>';
-  }else{
-    detailHtml='<div class="no-data">Ingen forbrugsdata</div>';
+/* ── Consumption history for default view ── */
+async function loadConsumptionHistory(){
+  // Load from first VM breaker set with data, or first breaker
+  const vms=allBreakerSetsData.filter(bs=>bs.virtual_meter);
+  if(vms.length){
+    const bs=vms[0];
+    try{
+      const hist=await(await fetch('/api/breaker_sets/'+encodeURIComponent(bs.id)+'/history?limit=48')).json();
+      if(hist.length){
+        consumptionChart.data.labels=hist.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});});
+        consumptionChart.data.datasets[0].data=hist.map(h=>h.consumption_kwh||0);
+        consumptionChart.update();
+        document.getElementById('chart-tag').textContent=bs.name+' - kWh';
+        return;
+      }
+    }catch(e){}
   }
-  document.getElementById('vm-details').innerHTML=detailHtml;
-
-  // Load VM history chart
-  document.getElementById('vm-chart-tag').textContent=bs.name;
-  loadVMHistory(bsId);
-}
-
-async function loadVMHistory(bsId){
-  try{
-    const hist=await(await fetch('/api/breaker_sets/'+encodeURIComponent(bsId)+'/history?limit=48')).json();
-    const ctx=document.getElementById('vmChart');
-    if(vmChartInstance)vmChartInstance.destroy();
-    vmChartInstance=new Chart(ctx,{
-      type:'line',data:{
-        labels:hist.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});}),
-        datasets:[
-          {label:'Total W',data:hist.map(h=>h.avg_total_active_power_w||0),borderColor:C.darkGreen,borderWidth:2,pointRadius:1,tension:0.3,fill:{target:'origin',alpha:0.1}},
-        ]
-      },options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},
-        plugins:{legend:{labels:{color:C.muted,font:{size:9,family:'Figtree'},boxWidth:8}}},
-        scales:{x:{ticks:{color:C.muted,font:{size:9},maxTicksLimit:8},grid:{color:'rgba(89,91,61,0.08)'}},y:{ticks:{color:C.muted,font:{size:9}},grid:{color:'rgba(89,91,61,0.08)'}}}}
-    });
-  }catch(e){}
+  // Fallback: first breaker with history
+  if(allBreakersData.length){
+    const b=allBreakersData[0];
+    try{
+      const hist=await(await fetch('/api/breakers/'+encodeURIComponent(b.id)+'/history?limit=48')).json();
+      consumptionChart.data.labels=hist.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});});
+      consumptionChart.data.datasets[0].data=hist.map(h=>h.consumption_kwh||0);
+      consumptionChart.update();
+      document.getElementById('chart-tag').textContent=b.name+' - kWh';
+    }catch(e){}
+  }
 }
 
 /* ── Account Management ── */
@@ -481,7 +476,6 @@ function renderAccounts(accountsList){
     '<div class="selector-panel" id="sites-panel-'+a.id+'"></div>'+
     '<div class="selector-panel" id="breakers-panel-'+a.id+'"></div>';
   }).join('');
-  // Re-open selectors that were open before
   Object.keys(openSelectors).forEach(k=>{
     if(openSelectors[k]==='sites')loadSiteSelector(k);
     if(openSelectors[k]==='breakers')loadBreakerSelector(k);
@@ -513,16 +507,11 @@ async function removeAccount(id){
   await loadAccounts();await refreshAll();
 }
 
-/* ── Site Selector (stays open) ── */
+/* ── Site Selector ── */
 function toggleSiteSelector(acctId){
   const panel=document.getElementById('sites-panel-'+acctId);
   if(!panel)return;
-  if(panel.classList.contains('open')){
-    panel.classList.remove('open');
-    delete openSelectors[acctId];
-    return;
-  }
-  // Close breaker panel if open
+  if(panel.classList.contains('open')){panel.classList.remove('open');delete openSelectors[acctId];return;}
   const bp=document.getElementById('breakers-panel-'+acctId);
   if(bp)bp.classList.remove('open');
   openSelectors[acctId]='sites';
@@ -554,24 +543,16 @@ async function setSiteFilter(acctId,siteId){
   const acct=accts.find(a=>a.id===acctId);
   let selected=acct&&acct.selected_sites?[...acct.selected_sites]:[];
   if(siteId==='all'){selected=[];}
-  else{
-    const idx=selected.indexOf(siteId);
-    if(idx>=0)selected.splice(idx,1);else selected.push(siteId);
-  }
+  else{const idx=selected.indexOf(siteId);if(idx>=0)selected.splice(idx,1);else selected.push(siteId);}
   await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_sites:selected})});
-  await loadSiteSelector(acctId); // Refresh in-place, stays open
+  await loadSiteSelector(acctId);
 }
 
-/* ── Breaker Selector (individual breakers within breaker sets) - stays open ── */
+/* ── Breaker Selector (STAYS OPEN on selection) ── */
 function toggleBreakerSelector(acctId){
   const panel=document.getElementById('breakers-panel-'+acctId);
   if(!panel)return;
-  if(panel.classList.contains('open')){
-    panel.classList.remove('open');
-    delete openSelectors[acctId];
-    return;
-  }
-  // Close site panel if open
+  if(panel.classList.contains('open')){panel.classList.remove('open');delete openSelectors[acctId];return;}
   const sp=document.getElementById('sites-panel-'+acctId);
   if(sp)sp.classList.remove('open');
   openSelectors[acctId]='breakers';
@@ -598,12 +579,11 @@ async function loadBreakerSelector(acctId){
     const virtual=availBS.filter(bs=>bs.virtual_meter);
 
     let html='<div class="quick-filters"><span style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">Hurtigvalg:</span>'+
-      '<span class="site-tag'+(allBSSelected?' active':'')+'" onclick="quickBSFilter(\''+acctId+'\',\'all\')">Alle ('+availBS.length+')</span>'+
-      (physical.length?'<span class="site-tag" onclick="quickBSFilter(\''+acctId+'\',\'physical\')">Kun fysiske ('+physical.length+')</span>':'')+
-      (virtual.length?'<span class="site-tag" onclick="quickBSFilter(\''+acctId+'\',\'virtual\')">Kun virtuelle ('+virtual.length+')</span>':'')+
-      '<span class="site-tag" onclick="quickBSFilter(\''+acctId+'\',\'none\')">Fravelg alle</span></div>';
+      '<span class="site-tag'+(allBSSelected?' active':'')+'" onclick="event.stopPropagation();quickBSFilter(\''+acctId+'\',\'all\')">Alle ('+availBS.length+')</span>'+
+      (physical.length?'<span class="site-tag" onclick="event.stopPropagation();quickBSFilter(\''+acctId+'\',\'physical\')">Kun fysiske ('+physical.length+')</span>':'')+
+      (virtual.length?'<span class="site-tag" onclick="event.stopPropagation();quickBSFilter(\''+acctId+'\',\'virtual\')">Kun virtuelle ('+virtual.length+')</span>':'')+
+      '<span class="site-tag" onclick="event.stopPropagation();quickBSFilter(\''+acctId+'\',\'none\')">Fravelg alle</span></div>';
 
-    // Physical breaker sets with individual breakers
     if(physical.length){
       html+='<div class="selector-group"><div class="selector-group-title physical">FYSISKE BREAKER SETS</div>';
       physical.forEach(bs=>{
@@ -612,8 +592,6 @@ async function loadBreakerSelector(acctId){
       });
       html+='</div>';
     }
-
-    // Virtual meters
     if(virtual.length){
       html+='<div class="selector-group"><div class="selector-group-title virtual">VIRTUELLE MAALERE</div>';
       virtual.forEach(bs=>{
@@ -623,36 +601,45 @@ async function loadBreakerSelector(acctId){
       html+='</div>';
     }
 
-    // Selection count
     const totalBS=availBS.length;
     const selCount=allBSSelected?totalBS:selBS.filter(x=>x!=='__none__').length;
-    html+='<div style="font-size:10px;color:var(--muted);margin-top:6px;">'+selCount+' / '+totalBS+' breaker sets valgt — klik "Hent" for at opdatere data</div>';
+    html+='<div style="font-size:10px;color:var(--muted);margin-top:6px;">'+selCount+' / '+totalBS+' breaker sets valgt</div>';
 
     panel.innerHTML=html;
-    // Store data for quick filters
     panel.dataset.allIds=JSON.stringify(availBS.map(bs=>String(bs.id)));
     panel.dataset.physIds=JSON.stringify(physical.map(bs=>String(bs.id)));
     panel.dataset.virtIds=JSON.stringify(virtual.map(bs=>String(bs.id)));
+
+    // Restore expanded states
+    Object.keys(openBSExpand).forEach(key=>{
+      if(openBSExpand[key]){
+        const el=document.getElementById('bs-breakers-'+key);
+        const arrow=document.getElementById('arrow-'+key);
+        if(el){el.classList.add('open');}
+        if(arrow){arrow.classList.add('open');}
+      }
+    });
   }catch(e){panel.innerHTML='<span>Fejl: '+e.message+'</span>';}
 }
 
 function renderBSGroup(acctId,bs,bsChecked,selBr,allBSSelected){
   const bsId=String(bs.id);
+  const key=acctId+'-'+bsId;
   const hasBreakers=bs.breakers&&bs.breakers.length>0;
-  let html='<div class="bs-group"><div class="bs-header" onclick="toggleBSExpand(\''+acctId+'-'+bsId+'\')">'+
-    '<span class="arrow" id="arrow-'+acctId+'-'+bsId+'">&#9654;</span>'+
+  const isExpanded=openBSExpand[key]||false;
+  let html='<div class="bs-group"><div class="bs-header" onclick="event.stopPropagation();toggleBSExpand(\''+key+'\')">'+
+    '<span class="arrow'+(isExpanded?' open':'')+'" id="arrow-'+key+'">&#9654;</span>'+
     '<div class="bs-check'+(bsChecked?' checked':'')+'" onclick="event.stopPropagation();toggleBS(\''+acctId+'\',\''+bsId+'\')">'+(bsChecked?'&#10003;':'')+'</div>'+
     '<span>'+bs.name+(bs.virtual_meter?' <span style="font-size:9px;color:var(--blue-grey)">(V)</span>':'')+'</span>'+
     '<span style="font-size:9px;color:var(--muted);margin-left:auto;">'+(hasBreakers?bs.breakers.length+' breakers':'')+'</span>'+
   '</div>';
 
   if(hasBreakers){
-    html+='<div class="bs-breakers" id="bs-breakers-'+acctId+'-'+bsId+'">';
+    html+='<div class="bs-breakers'+(isExpanded?' open':'')+'" id="bs-breakers-'+key+'">';
     bs.breakers.forEach(br=>{
       const brId=String(br.id);
-      // A breaker is checked if its parent BS is checked AND (no individual selection OR this breaker is in selBr)
       const brChecked=bsChecked&&(selBr.length===0||selBr.includes(brId));
-      html+='<div class="breaker-item" onclick="toggleBreaker(\''+acctId+'\',\''+bsId+'\',\''+brId+'\')">'+
+      html+='<div class="breaker-item" onclick="event.stopPropagation();toggleBreaker(\''+acctId+'\',\''+bsId+'\',\''+brId+'\')">'+
         '<div class="breaker-check'+(brChecked?' checked':'')+'">'+(brChecked?'&#10003;':'')+'</div>'+
         '<span>'+br.name+'</span></div>';
     });
@@ -663,10 +650,10 @@ function renderBSGroup(acctId,bs,bsChecked,selBr,allBSSelected){
 }
 
 function toggleBSExpand(key){
+  openBSExpand[key]=!openBSExpand[key];
   const el=document.getElementById('bs-breakers-'+key);
   const arrow=document.getElementById('arrow-'+key);
-  if(!el)return;
-  el.classList.toggle('open');
+  if(el)el.classList.toggle('open');
   if(arrow)arrow.classList.toggle('open');
 }
 
@@ -674,36 +661,28 @@ async function toggleBS(acctId,bsId){
   const accts=await(await fetch('/api/accounts')).json();
   const acct=accts.find(a=>a.id===acctId);
   let selBS=acct&&acct.selected_breaker_sets?[...acct.selected_breaker_sets]:[];
-
   if(selBS.includes('__none__'))selBS=[];
   const sid=String(bsId);
   const idx=selBS.indexOf(sid);
-  if(idx>=0)selBS.splice(idx,1);
-  else selBS.push(sid);
-
-  // If all are selected, reset to empty (=all)
+  if(idx>=0)selBS.splice(idx,1);else selBS.push(sid);
   const panel=document.getElementById('breakers-panel-'+acctId);
   if(panel){
     const allIds=JSON.parse(panel.dataset.allIds||'[]');
     if(selBS.length>=allIds.length&&allIds.every(id=>selBS.includes(id)))selBS=[];
   }
-
   await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_breaker_sets:selBS})});
-  await loadBreakerSelector(acctId); // Refresh in-place
+  await loadBreakerSelector(acctId);
 }
 
 async function toggleBreaker(acctId,bsId,brId){
   const accts=await(await fetch('/api/accounts')).json();
   const acct=accts.find(a=>a.id===acctId);
   let selBr=acct&&acct.selected_breakers?[...acct.selected_breakers]:[];
-
   const bid=String(brId);
   const idx=selBr.indexOf(bid);
-  if(idx>=0)selBr.splice(idx,1);
-  else selBr.push(bid);
-
+  if(idx>=0)selBr.splice(idx,1);else selBr.push(bid);
   await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_breakers:selBr})});
-  await loadBreakerSelector(acctId); // Refresh in-place
+  await loadBreakerSelector(acctId);
 }
 
 async function quickBSFilter(acctId,mode){
@@ -713,7 +692,6 @@ async function quickBSFilter(acctId,mode){
   else if(mode==='none')selBS=['__none__'];
   else if(mode==='physical'&&panel)selBS=JSON.parse(panel.dataset.physIds||'[]');
   else if(mode==='virtual'&&panel)selBS=JSON.parse(panel.dataset.virtIds||'[]');
-
   await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_breaker_sets:selBS})});
   await loadBreakerSelector(acctId);
 }
@@ -728,8 +706,7 @@ async function syncAccount(id){
 
 async function saveConfig(){
   await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    poll_interval_s:parseInt(document.getElementById('cfg-interval').value),
-    auto_poll:autoPoll})});
+    poll_interval_s:parseInt(document.getElementById('cfg-interval').value),auto_poll:autoPoll})});
 }
 
 async function loadConfig(){
@@ -762,23 +739,7 @@ async function manualSync(){
   btn.disabled=false;btn.textContent='Hent alle';await refreshAll();
 }
 
-async function refreshAll(){await Promise.all([refreshSummary(),refreshSites(),refreshBreakers(),refreshBreakerSets(),refreshAlerts(),refreshLog()]);}
-
-async function refreshSummary(){
-  const d=await(await fetch('/api/summary')).json();
-  document.getElementById('kpi-alerts').textContent=d.alerts_count||0;
-  if(d.last_sync)setSyncStatus(d.sync_status,d.sync_message);
-  if(!currentSiteFilter){
-    const pw=d.total_power_w||0;
-    document.getElementById('kpi-power').innerHTML=pw>1000?(pw/1000).toFixed(2)+'<span class="kpi-unit">kW</span>':pw.toFixed(0)+'<span class="kpi-unit">W</span>';
-    document.getElementById('kpi-power-sub').textContent=pw.toFixed(0)+' W total';
-    document.getElementById('kpi-kwh').innerHTML=(d.total_kwh||0).toFixed(2)+'<span class="kpi-unit">kWh</span>';
-    document.getElementById('kpi-sites').textContent=d.sites_count||0;
-    document.getElementById('kpi-sites-sub').textContent=(d.accounts_count||0)+' konti, '+(d.controllers_online||0)+'/'+(d.controllers_count||0)+' ctrl online';
-    document.getElementById('kpi-breakers').textContent=d.breakers_count||0;
-    document.getElementById('kpi-breakers-sub').textContent=(d.breaker_sets_count||0)+' breaker sets';
-  }
-}
+async function refreshAll(){await Promise.all([refreshSites(),refreshBreakers(),refreshBreakerSets(),refreshAlerts()]);}
 
 async function refreshSites(){
   allSitesData=await(await fetch('/api/sites')).json();
@@ -803,90 +764,23 @@ function applySiteFilter(){
   currentSiteFilter=document.getElementById('site-filter').value;
   const filtered=currentSiteFilter?allSitesData.filter(s=>s.id===currentSiteFilter):allSitesData;
   updateMap(filtered);
-  renderFilteredBreakers();
-  updateFilteredKPIs();
 }
 
 async function refreshBreakers(){
   allBreakersData=await(await fetch('/api/breakers')).json();
-  renderFilteredBreakers();
-  updateFilteredKPIs();
+  // Update alerts+temp panel
+  const alertsData=await(await fetch('/api/alerts')).json();
+  renderAlertsAndTemp(alertsData, allBreakersData);
 }
 
 async function refreshBreakerSets(){
   allBreakerSetsData=await(await fetch('/api/breaker_sets')).json();
-}
-
-function renderFilteredBreakers(){
-  const data=currentSiteFilter?allBreakersData.filter(b=>b.site_id===currentSiteFilter):allBreakersData;
-  const tbody=document.getElementById('breaker-tbody');tbody.innerHTML='';
-  if(!data.length){tbody.innerHTML='<tr><td colspan="14" class="no-data">Ingen data'+(currentSiteFilter?' for valgt site':'')+'</td></tr>';return;}
-  document.getElementById('breaker-count-tag').textContent=data.length+' breakers';
-  const maxPw=Math.max(...data.map(d=>d.consumption?.avg_total_active_power_w||0),1);
-  data.forEach(b=>{
-    const c=b.consumption||{},tw=c.avg_total_active_power_w||0,pct=Math.round((tw/maxPw)*100);
-    const l1w=c.avg_phase_a_active_power_w||0,l1v=c.avg_phase_a_voltage_v||0,l1a=c.avg_phase_a_current_a||0;
-    const l2w=c.avg_phase_b_active_power_w||0,l2v=c.avg_phase_b_voltage_v||0,l2a=c.avg_phase_b_current_a||0;
-    const l3w=c.avg_phase_c_active_power_w||0,l3v=c.avg_phase_c_voltage_v||0,l3a=c.avg_phase_c_current_a||0;
-    const temp=c.avg_temperature_c||0,kwh=c.consumption_kwh||0;
-    const tr=document.createElement('tr');tr.dataset.id=b.id;
-    if(selectedBreaker===b.id)tr.classList.add('selected');
-    tr.innerHTML='<td><div class="dev-name">'+b.name+'</div><div class="dev-loc">'+(b.site_name||'')+'</div></td>'+
-      '<td style="font-size:10px;color:var(--muted)">'+(b.account_name||'')+'</td>'+
-      '<td><div class="pw-bar"><div class="pw-fill" style="width:'+pct+'%"></div></div>'+tw.toFixed(0)+'</td>'+
-      '<td><span class="phase-badge L1">L1</span> '+l1w.toFixed(0)+'</td><td>'+(l1v?l1v.toFixed(1):'-')+'</td><td>'+(l1a?l1a.toFixed(2):'-')+'</td>'+
-      '<td><span class="phase-badge L2">L2</span> '+l2w.toFixed(0)+'</td><td>'+(l2v?l2v.toFixed(1):'-')+'</td><td>'+(l2a?l2a.toFixed(2):'-')+'</td>'+
-      '<td><span class="phase-badge L3">L3</span> '+l3w.toFixed(0)+'</td><td>'+(l3v?l3v.toFixed(1):'-')+'</td><td>'+(l3a?l3a.toFixed(2):'-')+'</td>'+
-      '<td class="'+(temp>65?'temp-hi':'')+'">'+(temp?temp.toFixed(1)+'C':'-')+'</td><td>'+(kwh?kwh.toFixed(3):'-')+'</td>';
-    tr.onclick=()=>showBreakerDetail(b.id);
-    tbody.appendChild(tr);
-  });
-  const wp=data.filter(b=>(b.consumption?.avg_total_active_power_w||0)>0);
-  donutChart.data.labels=wp.map(b=>b.name);donutChart.data.datasets[0].data=wp.map(b=>b.consumption.avg_total_active_power_w);donutChart.update();
-
-  // Also update the default line chart with first breaker
-  if(!selectedBreaker&&data.length)selectBreakerChart(data[0].id,data[0].name);
-}
-
-async function selectBreakerChart(id,name){
-  selectedBreaker=id;
-  document.querySelectorAll('.dev-table tr').forEach(tr=>tr.classList.toggle('selected',tr.dataset.id===id));
-  document.getElementById('chart-tag').textContent=name;
-  try{const hist=await(await fetch('/api/breakers/'+encodeURIComponent(id)+'/history?limit=48')).json();
-    lineChart.data.labels=hist.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});});
-    lineChart.data.datasets[0].data=hist.map(h=>h.avg_total_active_power_w||0);
-    lineChart.data.datasets[1].data=hist.map(h=>h.avg_phase_a_active_power_w||0);
-    lineChart.data.datasets[2].data=hist.map(h=>h.avg_phase_b_active_power_w||0);
-    lineChart.data.datasets[3].data=hist.map(h=>h.avg_phase_c_active_power_w||0);
-    lineChart.update();}catch(e){}
-}
-
-function updateFilteredKPIs(){
-  const data=currentSiteFilter?allBreakersData.filter(b=>b.site_id===currentSiteFilter):allBreakersData;
-  const pw=data.reduce((s,b)=>(s+(b.consumption?.avg_total_active_power_w||0)),0);
-  const kwh=data.reduce((s,b)=>(s+(b.consumption?.consumption_kwh||0)),0);
-  document.getElementById('kpi-power').innerHTML=pw>1000?(pw/1000).toFixed(2)+'<span class="kpi-unit">kW</span>':pw.toFixed(0)+'<span class="kpi-unit">W</span>';
-  document.getElementById('kpi-power-sub').textContent=pw.toFixed(0)+' W total';
-  document.getElementById('kpi-kwh').innerHTML=kwh.toFixed(2)+'<span class="kpi-unit">kWh</span>';
-  if(currentSiteFilter){
-    const site=allSitesData.find(s=>s.id===currentSiteFilter);
-    document.getElementById('kpi-sites').textContent='1';
-    document.getElementById('kpi-sites-sub').textContent=site?site.name:'Valgt site';
-    document.getElementById('kpi-breakers').textContent=data.length;
-    document.getElementById('kpi-breakers-sub').textContent='i valgt site';
-  }
+  renderGauges(allBreakerSetsData);
+  loadConsumptionHistory();
 }
 
 async function refreshAlerts(){
-  const d=await(await fetch('/api/alerts')).json();const el=document.getElementById('alert-list');
-  if(!d.length){el.innerHTML='<div class="no-data">Ingen alarmer</div>';return;}
-  el.innerHTML=d.slice(-8).reverse().map(a=>'<div class="alert-item"><div style="flex-shrink:0;color:var(--orange);font-weight:700">!</div><div><div style="color:var(--dark-green)">'+a.device+' - '+a.msg+'</div><div style="font-size:10px;color:var(--muted)">'+new Date(a.time+'Z').toLocaleTimeString('da-DK')+'</div></div></div>').join('');
-}
-
-async function refreshLog(){
-  const d=await(await fetch('/api/synclog')).json();const el=document.getElementById('sync-log-list');
-  if(!d.length){el.innerHTML='<div class="no-data">Ingen kald endnu</div>';return;}
-  el.innerHTML=d.map(l=>'<div class="log-item"><span class="'+(l.ok?'log-ok':'log-err')+'">'+(l.ok?'OK':'X')+'</span><span class="log-ts">'+new Date(l.time+'Z').toLocaleTimeString('da-DK')+'</span><span style="color:var(--dark-green)">'+l.msg+'</span></div>').join('');
+  // Already handled in refreshBreakers
 }
 
 (async()=>{await loadConfig();await loadAccounts();await refreshAll();setInterval(refreshAll,15000);})();
