@@ -228,7 +228,7 @@ def fetch_account(acct):
                                 "time": now,
                                 "device": breakers[bkey]["name"],
                                 "account": acct_name,
-                                         "msg": f"Hoej temp: {temp} C",
+                                "msg": f"Hoej temp: {temp} C",
                                 "level": "warning",
                             })
                         fetched += 1
@@ -551,6 +551,7 @@ def get_alerts():
 def get_synclog():
     return jsonify(sync_log[:20])
 
+
 @app.route("/api/proxy/<path:acct_id>/<path:api_path>")
 def api_proxy(acct_id, api_path):
     """Proxy requests to Hybird API for exploration."""
@@ -560,7 +561,6 @@ def api_proxy(acct_id, api_path):
     base = acct["base_url"].rstrip("/")
     token = acct["api_token"]
     hdrs = _headers(token)
-    # Forward query params
     params = dict(request.args)
     try:
         r = req.get(f"{base}/api/v1/{api_path}", headers=hdrs, params=params, timeout=15)
