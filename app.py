@@ -469,21 +469,33 @@ def get_account_available_breakers(acct_id):
 
 @app.route("/api/breaker_sets/<path:bs_id>/history")
 def get_breaker_set_history(bs_id):
-    """Hent historik for et breaker set (aggregated from bs_readings)."""
+    """Hent historik for et breaker set - primaert fra Hybird API."""
     limit = int(request.args.get("limit", 60))
-    # For breaker sets, aggregate history from their breakers
     bs = breaker_sets.get(bs_id, {})
     if not bs:
         return jsonify([])
-    # Return bs_readings if available, otherwise aggregate breaker histories
+    # Try to fetch historical data directly from Hybird API
+    raw_id = bs.get("raw_id")
+    acct_id = bs.get("account_id")
+    if raw_id and acct_id:
+        acct = next((a for a in accounts if a["id"] == acct_id), None)
+        if acct and acct.get("api_token"):
+            base = acct["base_url"].rstrip("/")
+            hdrs = _headers(acct["api_token"])
+            try:
+                r = req.get(f"{base}/api/v1/breaker_sets/{raw_id}/consumption.json",
+                            headers=hdrs, timeout=15)
+                if r.ok:
+                    data = r.json()
+                    if isinstance(data, list) and len(data) > 0:
+                        return jsonify(data[-limit:])
+            except Exception:
+                pass
+    # Fallback: in-memory data
     bs_reading = bs_readings.get(bs_id)
     if bs_reading:
         return jsonify([bs_reading])
-    # Fallback: aggregate from breakers in this set
     breaker_keys = bs.get("breakers", [])
-    if not breaker_keys:
-        return jsonify([])
-    # Try to build combined history from first breaker
     for bk in breaker_keys:
         if bk in history and history[bk]:
             return jsonify(history[bk][-limit:])
@@ -551,7 +563,6 @@ def get_alerts():
 def get_synclog():
     return jsonify(sync_log[:20])
 
-
 @app.route("/api/proxy/<path:acct_id>/<path:api_path>")
 def api_proxy(acct_id, api_path):
     """Proxy requests to Hybird API for exploration."""
@@ -561,6 +572,7 @@ def api_proxy(acct_id, api_path):
     base = acct["base_url"].rstrip("/")
     token = acct["api_token"]
     hdrs = _headers(token)
+    # Forward query params
     params = dict(request.args)
     try:
         r = req.get(f"{base}/api/v1/{api_path}", headers=hdrs, params=params, timeout=15)
