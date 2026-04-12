@@ -568,8 +568,12 @@ async function updateAccount(id){
 
 async function removeAccount(id){
   delete openSelectors[id];
+  delete cachedAvailBS[id];
+  selectedGaugeBsId=null;
   await fetch('/api/accounts/'+id,{method:'DELETE'});
   await loadAccounts();await refreshAll();
+  const accts=await(await fetch('/api/accounts')).json();
+  if(!accts||!accts.length){setSyncStatus('idle','Tilfoej en konto og klik "Hent alle"');}
 }
 
 /* ── Site Selector ── */
