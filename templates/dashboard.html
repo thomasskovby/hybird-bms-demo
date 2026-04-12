@@ -97,17 +97,23 @@ main{max-width:1400px;margin:0 auto;padding:24px 28px;}
 
 /* Gauge styling */
 .gauge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:22px;}
-.gauge-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;position:relative;}
+.gauge-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center;position:relative;cursor:pointer;transition:box-shadow 0.2s,border-color 0.2s;}
+.gauge-card:hover{border-color:var(--light-green);box-shadow:0 2px 12px rgba(89,91,61,0.10);}
+.gauge-card.selected{border-color:var(--dark-green);box-shadow:0 2px 12px rgba(89,91,61,0.18);}
 .gauge-card .vm-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px;}
-.gauge-card .vm-name{font-size:13px;font-weight:600;color:var(--dark-green);margin-bottom:12px;}
-.gauge-svg{width:160px;height:90px;margin:0 auto;}
+.gauge-card .vm-name{font-size:13px;font-weight:600;color:var(--dark-green);margin-bottom:10px;}
+.gauge-svg{width:140px;height:80px;margin:0 auto;}
 .gauge-track{fill:none;stroke:var(--surface3);stroke-width:10;stroke-linecap:round;}
 .gauge-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 0.8s ease;}
 .gauge-fill.power{stroke:var(--light-green);}
 .gauge-fill.consumption{stroke:var(--blue-grey);}
-.gauge-value{font-size:22px;font-weight:700;color:var(--dark-green);margin-top:6px;}
-.gauge-unit{font-size:12px;color:var(--muted);font-weight:400;}
+.gauge-value{font-size:20px;font-weight:700;color:var(--dark-green);margin-top:4px;}
+.gauge-unit{font-size:11px;color:var(--muted);font-weight:400;}
 .gauge-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.gauge-stats{display:flex;justify-content:space-around;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.gauge-stat{text-align:center;}
+.gauge-stat-val{font-size:13px;font-weight:600;color:var(--dark-green);}
+.gauge-stat-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
 
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;}
 .panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
@@ -182,7 +188,7 @@ main{max-width:1400px;margin:0 auto;padding:24px 28px;}
         <select id="cfg-interval" onchange="saveConfig()"><option value="30">30 sek</option><option value="60" selected>1 min</option><option value="300">5 min</option></select>
       </div>
       <div class="toggle-wrap" onclick="toggleAutoPoll()"><div class="toggle" id="auto-toggle"></div><span id="auto-label">Auto-poll: <strong>OFF</strong></span></div>
-      <div class="sync-status-bar"><div class="sync-pill idle" id="sync-pill">SYNC</div><span id="sync-msg">Tilfoej en konto og klik "Hent alle"</span></div>
+      <div class="sync-status-bar"><div class="sync-pill idle" id="sync-pill">IDLE</div><span id="sync-msg">Tilfoej en konto og klik "Hent alle"</span></div>
     </div>
   </div>
 </div>
@@ -263,6 +269,8 @@ let autoPoll=false,currentSiteFilter='',allSitesData=[],allBreakersData=[],allBr
 let currentView='default';
 let openSelectors={};
 let openBSExpand={};
+let cachedAvailBS={};
+let selectedGaugeBsId=null;
 
 function updateClock(){document.getElementById('topbar-clock').textContent=new Date().toLocaleTimeString('da-DK');}
 setInterval(updateClock,1000);updateClock();
@@ -279,43 +287,100 @@ function makeGaugeSVG(pct,cls){
     '</svg>';
 }
 
-function renderGauges(bsSets){
+async function renderGauges(bsSets){
   const grid=document.getElementById('gauge-grid');
-  const vms=bsSets.filter(bs=>bs.virtual_meter);
+
+  // Filter by account selections
+  let filtered=bsSets;
+  try{
+    const accts=await(await fetch('/api/accounts')).json();
+    if(accts&&accts.length){
+      filtered=bsSets.filter(bs=>{
+        const acct=accts.find(a=>a.id===bs.account_id);
+        if(!acct)return true;
+        const selBS=acct.selected_breaker_sets||[];
+        if(selBS.length===0)return true;
+        if(selBS.includes('__none__'))return false;
+        const rawId=bs.raw_id?String(bs.raw_id):bs.id.split(':')[1];
+        return selBS.map(String).includes(String(rawId));
+      });
+    }
+  }catch(e){}
+
+  const vms=filtered.filter(bs=>bs.virtual_meter);
   if(!vms.length&&!bsSets.length){grid.innerHTML='<div class="no-data" style="grid-column:1/-1;padding:20px;">Hent data for at se virtuelle maalere</div>';return;}
-  if(!vms.length){grid.innerHTML='<div class="no-data" style="grid-column:1/-1;padding:20px;">Ingen virtuelle maalere fundet</div>';return;}
+  if(!vms.length){grid.innerHTML='<div class="no-data" style="grid-column:1/-1;padding:20px;">Ingen virtuelle maalere valgt (vaelg i Breakers-menuen)</div>';return;}
 
   let html='';
+  const maxPw=Math.max(10000,...vms.map(v=>(v.consumption?.avg_total_active_power_w||0)*1.2));
   vms.forEach(bs=>{
     const c=bs.consumption||{};
     const pw=c.avg_total_active_power_w||0;
     const kwh=c.consumption_kwh||0;
-    // Power gauge (max ~10kW for visual scale)
-    const maxPw=Math.max(10000,...vms.map(v=>(v.consumption?.avg_total_active_power_w||0)*1.2));
     const pwPct=pw/maxPw;
-    // Consumption gauge (max based on data)
-    const maxKwh=Math.max(10,...vms.map(v=>(v.consumption?.consumption_kwh||0)*1.2));
-    const kwhPct=kwh/maxKwh;
 
     const pwStr=pw>1000?(pw/1000).toFixed(2)+' <span class="gauge-unit">kW</span>':pw.toFixed(0)+' <span class="gauge-unit">W</span>';
-    const kwhStr=kwh.toFixed(2)+' <span class="gauge-unit">kWh</span>';
+    const kwhStr=kwh.toFixed(2)+' kWh';
 
-    html+='<div class="gauge-card">'+
-      '<div class="vm-label">Virtuel Maaler</div>'+
-      '<div class="vm-name">'+bs.name+'</div>'+
-      makeGaugeSVG(pwPct,'power')+
-      '<div class="gauge-value">'+pwStr+'</div>'+
-      '<div class="gauge-sub">Aktuel effekt</div>'+
-      '</div>';
-    html+='<div class="gauge-card">'+
-      '<div class="vm-label">Virtuel Maaler</div>'+
-      '<div class="vm-name">'+bs.name+'</div>'+
-      makeGaugeSVG(kwhPct,'consumption')+
-      '<div class="gauge-value">'+kwhStr+'</div>'+
-      '<div class="gauge-sub">Forbrug (seneste time)</div>'+
-      '</div>';
+    // Phase voltages
+    const vA=c.avg_phase_a_voltage_v||0;
+    const vB=c.avg_phase_b_voltage_v||0;
+    const vC=c.avg_phase_c_voltage_v||0;
+    const hasVoltage=vA>0||vB>0||vC>0;
+
+    const isSelected=selectedGaugeBsId===bs.id;
+
+    html+='<div class="gauge-card'+(isSelected?' selected':'')+'" onclick="selectGauge(\''+bs.id+'\')">';
+    html+='<div class="vm-label">Virtuel Maaler</div>';
+    html+='<div class="vm-name">'+bs.name+'</div>';
+    html+=makeGaugeSVG(pwPct,'power');
+    html+='<div class="gauge-value">'+pwStr+'</div>';
+    html+='<div class="gauge-sub">Aktuel effekt</div>';
+    html+='<div class="gauge-stats">';
+    html+='<div class="gauge-stat"><div class="gauge-stat-val">'+kwhStr+'</div><div class="gauge-stat-label">Forbrug</div></div>';
+    if(hasVoltage){
+      html+='<div class="gauge-stat"><div class="gauge-stat-val">'+(vA?vA.toFixed(0):'--')+' / '+(vB?vB.toFixed(0):'--')+' / '+(vC?vC.toFixed(0):'--')+' V</div><div class="gauge-stat-label">L1 / L2 / L3</div></div>';
+    }
+    html+='</div></div>';
   });
   grid.innerHTML=html;
+}
+
+function selectGauge(bsId){
+  selectedGaugeBsId=bsId;
+  // Update selected state visually
+  document.querySelectorAll('.gauge-card').forEach(c=>c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  // Load history for this breaker set
+  loadGaugeHistory(bsId);
+}
+
+async function loadGaugeHistory(bsId){
+  try{
+    const hist=await(await fetch('/api/breaker_sets/'+encodeURIComponent(bsId)+'/history?limit=48')).json();
+    if(hist.length){
+      consumptionChart.data.labels=hist.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});});
+      consumptionChart.data.datasets[0].data=hist.map(h=>h.consumption_kwh||0);
+      consumptionChart.update();
+      const bs=allBreakerSetsData.find(b=>b.id===bsId);
+      document.getElementById('chart-tag').textContent=(bs?bs.name:'')+ ' - kWh';
+    } else {
+      // Try breakers within this set
+      const bs=allBreakerSetsData.find(b=>b.id===bsId);
+      if(bs&&bs.breakers&&bs.breakers.length){
+        const bk=bs.breakers[0];
+        const hist2=await(await fetch('/api/breakers/'+encodeURIComponent(bk)+'/history?limit=48')).json();
+        if(hist2.length){
+          consumptionChart.data.labels=hist2.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});});
+          consumptionChart.data.datasets[0].data=hist2.map(h=>h.consumption_kwh||0);
+          consumptionChart.update();
+          document.getElementById('chart-tag').textContent=(bs?bs.name:'')+' - kWh (breaker)';
+        }
+      }
+    }
+    // Scroll to chart
+    document.getElementById('consumptionChart').scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(e){}
 }
 
 /* ── Alerts + Temperature ── */
@@ -393,12 +458,12 @@ function showBreakerDetail(breakerId){
   const phaseData=[
     {label:'L1 (Fase A)',cls:'L1',w:c.avg_phase_a_active_power_w||0,v:c.avg_phase_a_voltage_v||0,a:c.avg_phase_a_current_a||0,pf:c.avg_phase_a_power_factor||0,va:c.avg_phase_a_apparent_power_va||0,var_:c.avg_phase_a_reactive_power_var||0},
     {label:'L2 (Fase B)',cls:'L2',w:c.avg_phase_b_active_power_w||0,v:c.avg_phase_b_voltage_v||0,a:c.avg_phase_b_current_a||0,pf:c.avg_phase_b_power_factor||0,va:c.avg_phase_b_apparent_power_va||0,var_:c.avg_phase_b_reactive_power_var||0},
-    {label:'L3 (Fase C)',cls:'L3',w:c.avg_phase_c_active_power_w||0,v:c.avg_phase_c_voltage_v||0,a:c.avg_phase_c_current_a||0,pf:c.avg_phase_c_power_factor||0,va:c.avg_phase_c_apparent_power_va||0,var_:c.avg_phase_c_reactive_power_var||0},
+    {label:'L3 (Fase C)',cls:'L3',w:c.avg_phase_c_active_power_w||0,v:c.avg_phase_c_voltage_v||0,a:c.avg_phase_c_current_a||0,pf:c.avg_phase_c_power_factor||0,va:c.avg_phase_c_apparent_power_va||0,var_:c.avg_phse_c_reactive_power_var||0},
   ];
   document.getElementById('breaker-phases').innerHTML=phaseData.map(p=>
     '<div class="phase-card"><div class="phase-card-title"><span class="phase-badge '+p.cls+'">'+p.cls+'</span> '+p.label+'</div>'+
     '<div class="phase-card-row"><span class="phase-card-label">Aktiv effekt</span><span class="phase-card-val">'+p.w.toFixed(1)+' W</span></div>'+
-    '<div class="phase-card-row"><span class="phase-card-label">Spaending</span><span class="phase-card-val">'+(p.v?p.v.toFixed(1)+' V':'-')+'</span></div>'+
+    '<div class="phase-card-row"><span class="phase-card-label">Spaending</span><span class="phase-card-val">'+(p.v?p.u.toFixed(1)+' V':'-')+'</span></div>'+
     '<div class="phase-card-row"><span class="phase-card-label">Stroem</span><span class="phase-card-val">'+(p.a?p.a.toFixed(3)+' A':'-')+'</span></div>'+
     '<div class="phase-card-row"><span class="phase-card-label">Power Factor</span><span class="phase-card-val">'+(p.pf?p.pf.toFixed(3):'-')+'</span></div>'+
     '<div class="phase-card-row"><span class="phase-card-label">Apparent (VA)</span><span class="phase-card-val">'+(p.va?p.va.toFixed(1)+' VA':'-')+'</span></div>'+
@@ -414,7 +479,7 @@ async function loadBreakerHistory(breakerId){
   try{
     const hist=await(await fetch('/api/breakers/'+encodeURIComponent(breakerId)+'/history?limit=48')).json();
     const ctx=document.getElementById('detailChart');
-    if(detailChartInstance)detailChartInstance.destroy();
+    if(detailCharrtInstance)detailChartInstance.destroy();
     detailChartInstance=new Chart(ctx,{
       type:'bar',data:{
         labels:hist.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});}),
@@ -559,16 +624,20 @@ function toggleBreakerSelector(acctId){
   loadBreakerSelector(acctId);
 }
 
-async function loadBreakerSelector(acctId){
+async function loadBreakerSelector(acctId,useCache){
   const panel=document.getElementById('breakers-panel-'+acctId);
   if(!panel)return;
   panel.classList.add('open');
-  panel.innerHTML='<span style="font-size:11px;color:var(--muted)">Henter breaker sets og breakers...</span>';
+  if(!useCache)panel.innerHTML='<span style="font-size:11px;color:var(--muted)">Henter breaker sets og breakers...</span>';
   try{
-    const [availBS, accts]=await Promise.all([
-      (await fetch('/api/accounts/'+acctId+'/available_breakers')).json(),
-      (await fetch('/api/accounts')).json()
-    ]);
+    let availBS;
+    if(useCache&&cachedAvailBS[acctId]){
+      availBS=cachedAvailBS[acctId];
+    }else{
+      availBS=await(await fetch('/api/accounts/'+acctId+'/available_breakers')).json();
+      cachedAvailBS[acctId]=availBS;
+    }
+    const accts=await(await fetch('/api/accounts')).json();
     if(availBS.error||!availBS.length){panel.innerHTML='<span>Ingen breaker sets fundet - tjek token</span>';return;}
     const acct=accts.find(a=>a.id===acctId);
     const selBS=acct&&acct.selected_breaker_sets?acct.selected_breaker_sets:[];
@@ -671,7 +740,8 @@ async function toggleBS(acctId,bsId){
     if(selBS.length>=allIds.length&&allIds.every(id=>selBS.includes(id)))selBS=[];
   }
   await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_breaker_sets:selBS})});
-  await loadBreakerSelector(acctId);
+  await loadBreakerSelector(acctId,true);
+  await refreshBreakerSets();
 }
 
 async function toggleBreaker(acctId,bsId,brId){
@@ -682,7 +752,8 @@ async function toggleBreaker(acctId,bsId,brId){
   const idx=selBr.indexOf(bid);
   if(idx>=0)selBr.splice(idx,1);else selBr.push(bid);
   await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_breakers:selBr})});
-  await loadBreakerSelector(acctId);
+  await loadBreakerSelector(acctId,true);
+  await refreshBreakerSets();
 }
 
 async function quickBSFilter(acctId,mode){
@@ -693,7 +764,8 @@ async function quickBSFilter(acctId,mode){
   else if(mode==='physical'&&panel)selBS=JSON.parse(panel.dataset.physIds||'[]');
   else if(mode==='virtual'&&panel)selBS=JSON.parse(panel.dataset.virtIds||'[]');
   await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_breaker_sets:selBS})});
-  await loadBreakerSelector(acctId);
+  await loadBreakerSelector(acctId,true);
+  await refreshBreakerSets();
 }
 
 /* ── Sync ── */
@@ -775,8 +847,8 @@ async function refreshBreakers(){
 
 async function refreshBreakerSets(){
   allBreakerSetsData=await(await fetch('/api/breaker_sets')).json();
-  renderGauges(allBreakerSetsData);
-  loadConsumptionHistory();
+  await renderGauges(allBreakerSetsData);
+  if(!selectedGaugeBsId)loadConsumptionHistory();
 }
 
 async function refreshAlerts(){
