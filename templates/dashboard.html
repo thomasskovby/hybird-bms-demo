@@ -458,12 +458,12 @@ function showBreakerDetail(breakerId){
   const phaseData=[
     {label:'L1 (Fase A)',cls:'L1',w:c.avg_phase_a_active_power_w||0,v:c.avg_phase_a_voltage_v||0,a:c.avg_phase_a_current_a||0,pf:c.avg_phase_a_power_factor||0,va:c.avg_phase_a_apparent_power_va||0,var_:c.avg_phase_a_reactive_power_var||0},
     {label:'L2 (Fase B)',cls:'L2',w:c.avg_phase_b_active_power_w||0,v:c.avg_phase_b_voltage_v||0,a:c.avg_phase_b_current_a||0,pf:c.avg_phase_b_power_factor||0,va:c.avg_phase_b_apparent_power_va||0,var_:c.avg_phase_b_reactive_power_var||0},
-    {label:'L3 (Fase C)',cls:'L3',w:c.avg_phase_c_active_power_w||0,v:c.avg_phase_c_voltage_v||0,a:c.avg_phase_c_current_a||0,pf:c.avg_phase_c_power_factor||0,va:c.avg_phase_c_apparent_power_va||0,var_:c.avg_phse_c_reactive_power_var||0},
+    {label:'L3 (Fase C)',cls:'L3',w:c.avg_phase_c_active_power_w||0,v:c.avg_phase_c_voltage_v||0,a:c.avg_phase_c_current_a||0,pf:c.avg_phase_c_power_factor||0,va:c.avg_phase_c_apparent_power_va||0,var_:c.avg_phase_c_reactive_power_var||0},
   ];
   document.getElementById('breaker-phases').innerHTML=phaseData.map(p=>
     '<div class="phase-card"><div class="phase-card-title"><span class="phase-badge '+p.cls+'">'+p.cls+'</span> '+p.label+'</div>'+
     '<div class="phase-card-row"><span class="phase-card-label">Aktiv effekt</span><span class="phase-card-val">'+p.w.toFixed(1)+' W</span></div>'+
-    '<div class="phase-card-row"><span class="phase-card-label">Spaending</span><span class="phase-card-val">'+(p.v?p.u.toFixed(1)+' V':'-')+'</span></div>'+
+    '<div class="phase-card-row"><span class="phase-card-label">Spaending</span><span class="phase-card-val">'+(p.v?p.v.toFixed(1)+' V':'-')+'</span></div>'+
     '<div class="phase-card-row"><span class="phase-card-label">Stroem</span><span class="phase-card-val">'+(p.a?p.a.toFixed(3)+' A':'-')+'</span></div>'+
     '<div class="phase-card-row"><span class="phase-card-label">Power Factor</span><span class="phase-card-val">'+(p.pf?p.pf.toFixed(3):'-')+'</span></div>'+
     '<div class="phase-card-row"><span class="phase-card-label">Apparent (VA)</span><span class="phase-card-val">'+(p.va?p.va.toFixed(1)+' VA':'-')+'</span></div>'+
@@ -479,7 +479,7 @@ async function loadBreakerHistory(breakerId){
   try{
     const hist=await(await fetch('/api/breakers/'+encodeURIComponent(breakerId)+'/history?limit=48')).json();
     const ctx=document.getElementById('detailChart');
-    if(detailCharrtInstance)detailChartInstance.destroy();
+    if(detailChartInstance)detailChartInstance.destroy();
     detailChartInstance=new Chart(ctx,{
       type:'bar',data:{
         labels:hist.map(h=>{const d=new Date(h.measured_hour);return isNaN(d)?'':d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});}),
@@ -534,7 +534,7 @@ function renderAccounts(accountsList){
     '<input class="cfg-input token-input" type="password" placeholder="'+(a.has_token?'(token gemt)':'API token')+'" onchange="updateAccount(\''+a.id+'\')">'+
     '<div class="account-actions">'+
     '<button class="btn btn-sm btn-ghost" onclick="toggleSiteSelector(\''+a.id+'\')" title="Vaelg sites">Sites</button>'+
-    '<button class="btn btn-sm btn-primary" onclick="toggleBreakerSelector(\''+a.id+'\')" title="Vaelg breakers">Breakers</button>'+
+    '<button class="btn btn-sm btn-primary" onclick="toggleBreakerSelector(\''+a.id+'\')" title="Vaelg virtuelle maalere">VM</button>'+
     '<button class="btn btn-sm btn-primary" onclick="syncAccount(\''+a.id+'\')">Hent</button>'+
     '<button class="btn btn-sm btn-danger" onclick="removeAccount(\''+a.id+'\')">&times;</button>'+
     '</div></div>'+
@@ -644,23 +644,12 @@ async function loadBreakerSelector(acctId,useCache){
     const selBr=acct&&acct.selected_breakers?acct.selected_breakers:[];
     const allBSSelected=selBS.length===0;
 
-    const physical=availBS.filter(bs=>!bs.virtual_meter);
     const virtual=availBS.filter(bs=>bs.virtual_meter);
 
-    let html='<div class="quick-filters"><span style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">Hurtigvalg:</span>'+
-      '<span class="site-tag'+(allBSSelected?' active':'')+'" onclick="event.stopPropagation();quickBSFilter(\''+acctId+'\',\'all\')">Alle ('+availBS.length+')</span>'+
-      (physical.length?'<span class="site-tag" onclick="event.stopPropagation();quickBSFilter(\''+acctId+'\',\'physical\')">Kun fysiske ('+physical.length+')</span>':'')+
-      (virtual.length?'<span class="site-tag" onclick="event.stopPropagation();quickBSFilter(\''+acctId+'\',\'virtual\')">Kun virtuelle ('+virtual.length+')</span>':'')+
+    let html='<div class="quick-filters"><span style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">Virtuelle Maalere:</span>'+
+      '<span class="site-tag'+(allBSSelected?' active':'')+'" onclick="event.stopPropagation();quickBSFilter(\''+acctId+'\',\'virtual\')">Alle ('+virtual.length+')</span>'+
       '<span class="site-tag" onclick="event.stopPropagation();quickBSFilter(\''+acctId+'\',\'none\')">Fravelg alle</span></div>';
 
-    if(physical.length){
-      html+='<div class="selector-group"><div class="selector-group-title physical">FYSISKE BREAKER SETS</div>';
-      physical.forEach(bs=>{
-        const bsChecked=allBSSelected||selBS.includes(String(bs.id));
-        html+=renderBSGroup(acctId,bs,bsChecked,selBr,allBSSelected);
-      });
-      html+='</div>';
-    }
     if(virtual.length){
       html+='<div class="selector-group"><div class="selector-group-title virtual">VIRTUELLE MAALERE</div>';
       virtual.forEach(bs=>{
@@ -668,15 +657,17 @@ async function loadBreakerSelector(acctId,useCache){
         html+=renderBSGroup(acctId,bs,bsChecked,selBr,allBSSelected);
       });
       html+='</div>';
+    }else{
+      html+='<div style="padding:10px;font-size:11px;color:var(--muted);">Ingen virtuelle maalere fundet</div>';
     }
 
-    const totalBS=availBS.length;
-    const selCount=allBSSelected?totalBS:selBS.filter(x=>x!=='__none__').length;
+    const totalBS=virtual.length;
+    const selCount=allBSSelected?totalBS:selBS.filter(x=>x!=='__none__'&&virtual.some(v=>String(v.id)===String(x))).length;
     html+='<div style="font-size:10px;color:var(--muted);margin-top:6px;">'+selCount+' / '+totalBS+' breaker sets valgt</div>';
 
     panel.innerHTML=html;
-    panel.dataset.allIds=JSON.stringify(availBS.map(bs=>String(bs.id)));
-    panel.dataset.physIds=JSON.stringify(physical.map(bs=>String(bs.id)));
+    panel.dataset.allIds=JSON.stringify(virtual.map(bs=>String(bs.id)));
+    panel.dataset.physIds=JSON.stringify([]);
     panel.dataset.virtIds=JSON.stringify(virtual.map(bs=>String(bs.id)));
 
     // Restore expanded states
@@ -759,10 +750,11 @@ async function toggleBreaker(acctId,bsId,brId){
 async function quickBSFilter(acctId,mode){
   const panel=document.getElementById('breakers-panel-'+acctId);
   let selBS=[];
-  if(mode==='all')selBS=[];
+  if(mode==='all'||mode==='virtual'){
+    if(panel)selBS=JSON.parse(panel.dataset.virtIds||'[]');
+    else selBS=[];
+  }
   else if(mode==='none')selBS=['__none__'];
-  else if(mode==='physical'&&panel)selBS=JSON.parse(panel.dataset.physIds||'[]');
-  else if(mode==='virtual'&&panel)selBS=JSON.parse(panel.dataset.virtIds||'[]');
   await fetch('/api/accounts/'+acctId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({selected_breaker_sets:selBS})});
   await loadBreakerSelector(acctId,true);
   await refreshBreakerSets();
