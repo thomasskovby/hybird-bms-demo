@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hybird API Brugerguide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --hybird-dark: #595B3D;
+    --hybird-light: #9B9B6B;
+    --hybird-sand: #F3EEE5;
+    --accent-green: #A1B1A4;
+    --accent-orange: #BB6125;
+    --accent-blue: #99B0BD;
+    --text-dark: #3a3a2a;
+    --text-body: #555544;
+    --text-muted: #8a8a7a;
+    --ui-dark: #1a1a2e;
+    --ui-sidebar: #16213e;
+    --ui-accent: #5c6bc0;
+    --ui-blue: #4f5bd5;
+    --ui-text: #e0e0e0;
+    --ui-muted: #9e9e9e;
+    --ui-border: #2a2a4a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Figtree', system-ui, -apple-system, sans-serif;
+    background: #faf9f6;
+    color: var(--text-body);
+    line-height: 1.7;
+  }
+
+  /* Header */
+  .header {
+    background: var(--hybird-dark);
+    color: var(--hybird-sand);
+    padding: 64px 40px;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .header .logo {
+    margin-bottom: 32px;
+    opacity: 0.85;
+  }
+  .header h1 {
+    font-size: 2.8em;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: white;
+    letter-spacing: -0.5px;
+  }
+  .header .subtitle {
+    font-size: 1.15em;
+    font-weight: 300;
+    color: var(--hybird-sand);
+    opacity: 0.85;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+
+  /* Intro */
+  .intro {
+    background: var(--hybird-sand);
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 40px;
+  }
+  .intro h2 {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: var(--hybird-dark);
+    margin-bottom: 16px;
+  }
+  .intro p { margin-bottom: 12px; }
+
+  /* Info / warning boxes */
+  .info-box {
+    background: rgba(161,177,164,0.2);
+    border-left: 4px solid var(--accent-green);
+    padding: 16px 20px;
+    border-radius: 0 6px 6px 0;
+    margin: 16px 0;
+  }
+  .info-box strong { color: var(--hybird-dark); }
+
+  .warning-box {
+    background: rgba(187,97,37,0.08);
+    border-left: 4px solid var(--accent-orange);
+    padding: 16px 20px;
+    border-radius: 0 6px 6px 0;
+    margin: 16px 0;
+  }
+  .warning-box strong { color: var(--accent-orange); }
+
+  /* Section title */
+  .section-title {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--hybird-dark);
+    margin: 48px 0 20px;
+    padding-bottom: 8px;
+    border-bottom: 3px solid var(--hybird-light);
+  }
+
+  /* Steps */
+  .step {
+    background: white;
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 24px;
+    border: 1px solid #e8e6e0;
+    position: relative;
+  }
+  .step-number {
+    position: absolute;
+    top: -14px;
+    left: 24px;
+    background: var(--hybird-dark);
+    color: var(--hybird-sand);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1em;
+  }
+  .step h3 {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 12px;
+    padding-left: 24px;
+  }
+  .step p { margin-bottom: 12px; }
+  .step ol, .step ul { margin: 12px 0 12px 24px; }
+  .step li { margin-bottom: 6px; }
+
+  code {
+    background: var(--hybird-sand);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-size: 0.88em;
+    color: var(--hybird-dark);
+  }
+
+  /* UI Mockups */
+  .mockup {
+    background: var(--ui-dark);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px 0;
+    font-size: 13px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+  .mockup-bar {
+    background: #0d1117;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #8b949e;
+  }
+  .mockup-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .mockup-dot.red { background: #ff5f57; }
+  .mockup-dot.yellow { background: #febc2e; }
+  .mockup-dot.green { background: #28c840; }
+  .mockup-url {
+    background: #161b22;
+    padding: 4px 12px;
+    border-radius: 6px;
+    flex: 1;
+    color: #8b949e;
+  }
+  .mockup-content { display: flex; min-height: 280px; }
+  .mockup-sidebar {
+    width: 160px;
+    background: var(--ui-sidebar);
+    padding: 16px;
+    border-right: 1px solid var(--ui-border);
+    flex-shrink: 0;
+  }
+  .mockup-sidebar .brand {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 16px;
+  }
+  .sidebar-item { padding: 6px 10px; color: var(--ui-muted); border-radius: 6px; margin-bottom: 2px; font-size: 12px; }
+  .sidebar-item.active { background: var(--ui-accent); color: white; }
+  .mockup-main { flex: 1; padding: 20px; color: var(--ui-text); }
+  .mockup-main h2 { font-size: 1.6em; color: white; margin-bottom: 6px; }
+  .mockup-main .desc { color: var(--ui-muted); font-size: 12px; margin-bottom: 16px; }
+  .mockup-btn { display: inline-block; background: var(--ui-blue); color: white; padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+  .mockup-btn-outline { display: inline-block; background: transparent; color: var(--ui-muted); border: 1px solid var(--ui-border); padding: 7px 16px; border-radius: 8px; font-size: 13px; }
+  .mock-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .mock-table th { text-align: left; padding: 8px 10px; color: var(--ui-muted); font-weight: 500; font-size: 11px; border-bottom: 1px solid var(--ui-border); }
+  .mock-table td { padding: 10px; border-bottom: 1px solid var(--ui-border); color: var(--ui-text); font-size: 12px; }
+  .mock-table .link { color: #7986cb; }
+  .mock-form-group { margin-bottom: 16px; }
+  .mock-form-group label { display: block; color: var(--ui-text); font-size: 13px; margin-bottom: 4px; }
+  .mock-input { background: #2a2a4a; border: 1px solid var(--ui-border); border-radius: 8px; padding: 9px 12px; color: white; font-size: 13px; width: 300px; }
+  .mock-hint { color: var(--ui-muted); font-size: 11px; margin-top: 3px; }
+  .mock-radio { display: flex; align-items: center; gap: 8px; color: var(--ui-text); font-size: 13px; margin-bottom: 5px; }
+  .mock-radio-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ui-muted); display: inline-block; flex-shrink: 0; }
+  .mock-radio-dot.selected { border-color: var(--ui-blue); background: radial-gradient(circle, var(--ui-blue) 40%, transparent 45%); }
+  .mock-tabs { display: flex; border-bottom: 2px solid var(--ui-border); margin-bottom: 16px; }
+  .mock-tab { padding: 8px 16px; color: var(--ui-muted); font-size: 13px; }
+  .mock-tab.active { color: var(--ui-blue); border-bottom: 2px solid var(--ui-blue); margin-bottom: -2px; }
+
+  .token-display {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-size: 14px;
+    color: var(--accent-orange);
+    word-break: break-all;
+    margin: 12px 0;
+    position: relative;
+  }
+  .token-display .copy-hint { position: absolute; top: 8px; right: 12px; font-size: 11px; color: #8b949e; font-family: 'Figtree', sans-serif; }
+
+  .arrow { color: var(--accent-orange); font-weight: 600; }
+
+  /* Example table */
+  .example-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  .example-table th { padding: 12px; text-align: left; background: var(--hybird-sand); border-bottom: 2px solid var(--hybird-light); color: var(--hybird-dark); font-weight: 600; }
+  .example-table td { padding: 10px 12px; border-bottom: 1px solid #e8e6e0; }
+
+  /* Footer */
+  .footer {
+    background: var(--hybird-sand);
+    text-align: center;
+    padding: 32px;
+    color: var(--text-muted);
+    font-size: 0.85em;
+    margin-top: 48px;
+  }
+  .footer a { color: var(--hybird-dark); }
+
+  @media (max-width: 768px) {
+    .container { padding: 24px 12px; }
+    .header { padding: 40px 20px; }
+    .mockup-sidebar { display: none; }
+    .mock-input { width: 100%; }
+  }
+  @media print {
+    .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .mockup { break-inside: avoid; }
+    .step { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo" style="font-size:1.6em;font-weight:700;">Hybird.</div>
+    <h1>API Brugerguide</h1>
+    <div class="subtitle">Opret brugere, generer API-tokens og integr&eacute;r med Hybird-platformen</div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="intro">
+  <h2>Om Hybirds API</h2>
+  <p>Hybird tilbyder et fuldt API p&aring; alle kundekonti, hvor en stor del af m&aring;ledata er eksponeret. Data kan hentes via API efter at man har oprettet en <strong>API Token</strong> under sin bruger.</p>
+  <p>Man kan oprette specifikke brugere til bestemte form&aring;l. For eksempel hvis man vil lave en integration til et CTS-system, kan man med fordel oprette en bruger med navnet <code>API-CTS</code> og herinde udtage en token.</p>
+  <div class="info-box">
+    <strong>Brugerroller:</strong><br>
+    <strong>Admin</strong> &ndash; fuld adgang til alt, inkl. brugeradministration<br>
+    <strong>Operator</strong> &ndash; adgang til alt undtagen brugeradministration<br>
+    <strong>Observer</strong> &ndash; kun l&aelig;seadgang (anbefalet til API-integrationer)
+  </div>
+</div>
+
+<!-- DEL 1 -->
+<h2 class="section-title">Del 1: Opret en API-specifik bruger</h2>
+
+<div class="step">
+  <div class="step-number">1</div>
+  <h3>G&aring; til Team-menuen</h3>
+  <p>Log ind p&aring; din Hybird-konto (f.eks. <code>demo.hybird.energy</code>) og klik p&aring; <strong>Team</strong> i venstre sidebar. Her ser du en oversigt over alle brugere p&aring; kontoen.</p>
+  <div class="mockup">
+    <div class="mockup-bar">
+      <span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span>
+      <div class="mockup-url">demo.hybird.energy/users</div>
+    </div>
+    <div class="mockup-content">
+      <div class="mockup-sidebar">
+        <div class="brand">Hybird.</div>
+        <div class="sidebar-item">Dashboard</div><div class="sidebar-item">Reporting</div><div class="sidebar-item">Explorer</div><div class="sidebar-item">Cockpit</div><div class="sidebar-item">Sites</div><div class="sidebar-item">Controllers</div><div class="sidebar-item">Devices</div><div class="sidebar-item">Alarms</div><div class="sidebar-item">Timers</div><div class="sidebar-item active">Team</div><div class="sidebar-item">Comments</div><div class="sidebar-item">Events</div>
+      </div>
+      <div class="mockup-main">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h2>Users</h2>
+          <div class="mockup-btn">+ Add user</div>
+        </div>
+        <p class="desc">Users are either admin, operator or observer. Admins can manage everything, operators can manage hardware and observers are read only.</p>
+        <table class="mock-table">
+          <tr><th>Name</th><th>Email</th><th>Role</th><th>Last seen</th></tr>
+          <tr><td class="link">Thomas Skovby</td><td>thomas@hybird.energy</td><td>Admin</td><td>12 Apr 18:11</td></tr>
+          <tr><td class="link">Albert Laursen</td><td>albert@hybird.energy</td><td>Operator</td><td>08 Apr 19:04</td></tr>
+          <tr><td class="link">Jan Vardinghus</td><td>jan@hybird.energy</td><td>Admin</td><td>10 Apr 09:23</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-number">2</div>
+  <h3>Klik p&aring; &ldquo;+ Add user&rdquo;</h3>
+  <p>Klik p&aring; den bl&aring; knap <strong>+ Add user</strong> i &oslash;verste h&oslash;jre hj&oslash;rne. Udfyld formularen:</p>
+  <ol>
+    <li><strong>Name:</strong> Giv brugeren et beskrivende navn, f.eks. <code>API-BMS Integration</code> eller <code>API-CTS</code></li>
+    <li><strong>Email:</strong> Angiv en email-adresse, f.eks. <code>api-bms@hybird.energy</code></li>
+    <li><strong>Phone:</strong> Valgfrit &ndash; kan udelades for API-brugere</li>
+    <li><strong>Role:</strong> V&aelig;lg <strong>Observer</strong> (anbefalet til API-integrationer, da det giver kun l&aelig;seadgang)</li>
+  </ol>
+  <div class="mockup">
+    <div class="mockup-bar">
+      <span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span>
+      <div class="mockup-url">demo.hybird.energy/users/new</div>
+    </div>
+    <div class="mockup-content">
+      <div class="mockup-sidebar"><div class="brand">Hybird.</div><div class="sidebar-item active">Team</div></div>
+      <div class="mockup-main">
+        <p style="color:#7986cb;font-size:12px;margin-bottom:6px;">&larr; All users</p>
+        <h2>New user</h2>
+        <p class="desc">Add a team member to Hybird, once you create the user they get an email invite</p>
+        <div style="margin-top:16px;">
+          <div class="mock-form-group"><label>Name</label><div class="mock-input">API-BMS Integration</div><div class="mock-hint">Full name of this user</div></div>
+          <div class="mock-form-group"><label>Email</label><div class="mock-input">api-bms@hybird.energy</div><div class="mock-hint">A valid email address for logging in</div></div>
+          <div class="mock-form-group"><label>Phone</label><div class="mock-input" style="color:transparent;">-</div></div>
+          <div class="mock-form-group">
+            <label>Role</label>
+            <div class="mock-radio"><span class="mock-radio-dot"></span> Admin - can access and modify everything</div>
+            <div class="mock-radio"><span class="mock-radio-dot"></span> Operator - can access and modify everything except users</div>
+            <div class="mock-radio"><span class="mock-radio-dot selected"></span> <strong>Observer</strong> - can access everything but not modify anything</div>
+          </div>
+          <div style="text-align:right;margin-top:12px;"><span class="mockup-btn">&#10003; Create</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="warning-box">
+    <strong>Tip:</strong> For API-integrationer anbefales rollen <strong>Observer</strong>, da API-brugeren kun skal l&aelig;se data. Brug <strong>Operator</strong> hvis integrationen ogs&aring; skal kunne &aelig;ndre konfigurationer.
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-number">3</div>
+  <h3>Klik &ldquo;Create&rdquo;</h3>
+  <p>Klik p&aring; <strong>Create</strong>-knappen. Du bliver f&oslash;rt til brugerens profilside, som viser en <strong>Overview</strong>-fane med brugerens detaljer.</p>
+  <div class="mockup">
+    <div class="mockup-bar">
+      <span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span>
+      <div class="mockup-url">demo.hybird.energy/users/42</div>
+    </div>
+    <div class="mockup-content">
+      <div class="mockup-sidebar"><div class="brand">Hybird.</div><div class="sidebar-item active">Team</div></div>
+      <div class="mockup-main">
+        <p style="color:#7986cb;font-size:12px;margin-bottom:6px;">&larr; All users</p>
+        <h2>API-BMS Integration</h2>
+        <p class="desc">Overview of API-BMS Integration</p>
+        <div class="mock-tabs">
+          <div class="mock-tab active">Overview</div>
+          <div class="mock-tab"><span class="arrow">&rarr;</span> Tokens <span style="background:#3a3a5c;padding:1px 7px;border-radius:10px;font-size:10px;margin-left:4px;">0</span></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <table class="mock-table" style="width:auto;">
+            <tr><td style="color:var(--ui-muted);padding-right:40px;">Name</td><td>API-BMS Integration</td></tr>
+            <tr><td style="color:var(--ui-muted);">Email</td><td>api-bms@hybird.energy</td></tr>
+            <tr><td style="color:var(--ui-muted);">Role</td><td>Observer</td></tr>
+          </table>
+          <div><span class="mockup-btn-outline">&#9998; Edit</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEL 2 -->
+<h2 class="section-title">Del 2: Opret en API Token</h2>
+
+<div class="step">
+  <div class="step-number">4</div>
+  <h3>G&aring; til Tokens-fanen</h3>
+  <p>P&aring; brugerens profilside klikker du p&aring; <strong>Tokens</strong>-fanen (ved siden af Overview). Her administrerer du API-tokens for brugeren.</p>
+  <div class="mockup">
+    <div class="mockup-bar">
+      <span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span>
+      <div class="mockup-url">demo.hybird.energy/users/42#tokens</div>
+    </div>
+    <div class="mockup-content">
+      <div class="mockup-sidebar"><div class="brand">Hybird.</div><div class="sidebar-item active">Team</div></div>
+      <div class="mockup-main">
+        <h2>API-BMS Integration</h2>
+        <div class="mock-tabs">
+          <div class="mock-tab">Overview</div>
+          <div class="mock-tab active">Tokens <span style="background:#3a3a5c;padding:1px 7px;border-radius:10px;font-size:10px;margin-left:4px;">0</span></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div><h3 style="color:white;font-size:1em;margin:0;">API Tokens</h3><p class="desc" style="margin:4px 0 0;">Manage API tokens for this user</p></div>
+          <span class="mockup-btn">+ Add token</span>
+        </div>
+        <div style="text-align:center;padding:32px;color:var(--ui-muted);font-size:12px;">Ingen tokens endnu.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-number">5</div>
+  <h3>Klik &ldquo;+ Add token&rdquo; og navngiv din token</h3>
+  <p>Klik p&aring; <strong>+ Add token</strong>. Angiv et beskrivende navn, f.eks. <code>BMS Dashboard Integration</code>.</p>
+  <div class="mockup">
+    <div class="mockup-bar">
+      <span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span>
+      <div class="mockup-url">demo.hybird.energy/users/42/api_tokens/new</div>
+    </div>
+    <div class="mockup-content">
+      <div class="mockup-sidebar"><div class="brand">Hybird.</div><div class="sidebar-item active">Team</div></div>
+      <div class="mockup-main">
+        <h2>New API Token</h2>
+        <p class="desc">Create a new API token for API-BMS Integration</p>
+        <div style="margin-top:20px;">
+          <div class="mock-form-group"><label>Name</label><div class="mock-input">BMS Dashboard Integration</div><div class="mock-hint">A descriptive name to help identify this token</div></div>
+          <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:20px;">
+            <span class="mockup-btn-outline">&times; Cancel</span>
+            <span class="mockup-btn">&#10003; Create API Token</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="warning-box">
+    <strong>Vigtigt!</strong> Kopi&eacute;r din token med det samme. Af sikkerhedshensyn kan du ikke se den fulde token igen efter du har forladt siden.
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-number">6</div>
+  <h3>Kopi&eacute;r din API Token</h3>
+  <p>N&aring;r tokenen er oprettet, vises den fulde token-streng &eacute;n gang. Kopi&eacute;r den og gem den sikkert.</p>
+  <div class="token-display">
+    <span class="copy-hint">Klik for at kopiere</span>
+    Yg2D.xK9mR4vB7nQ2wL5pJ8tF3hA6cE1iU0oS...
+  </div>
+  <p>Herefter vises tokenen med et pr&aelig;fiks (de f&oslash;rste 4 tegn), s&aring; du kan identificere den:</p>
+  <div class="mockup">
+    <div class="mockup-bar">
+      <span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span>
+      <div class="mockup-url">demo.hybird.energy/users/42#tokens</div>
+    </div>
+    <div class="mockup-content" style="min-height:180px;">
+      <div class="mockup-sidebar"><div class="brand">Hybird.</div><div class="sidebar-item active">Team</div></div>
+      <div class="mockup-main">
+        <div class="mock-tabs">
+          <div class="mock-tab">Overview</div>
+          <div class="mock-tab active">Tokens <span style="background:#3a3a5c;padding:1px 7px;border-radius:10px;font-size:10px;margin-left:4px;">1</span></div>
+        </div>
+        <table class="mock-table">
+          <tr><th>Name</th><th>Token Prefix</th><th>Created</th><th>Last Used</th><th></th></tr>
+          <tr><td>BMS Dashboard Integration</td><td><code style="background:#2a2a4a;color:#7986cb;padding:2px 6px;border-radius:4px;">Yg2D...</code></td><td>13 Apr 18:35</td><td>&mdash;</td><td style="color:#ef5350;">&#128465;</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEL 3 -->
+<h2 class="section-title">Del 3: Brug din token i Hybird BMS Dashboard</h2>
+
+<div class="step">
+  <div class="step-number">7</div>
+  <h3>&Aring;bn Hybird BMS Dashboard</h3>
+  <p>G&aring; til dit Hybird BMS Dashboard-v&aelig;rkt&oslash;j. I &oslash;verste del finder du sektionen <strong>API-Konti</strong> med knappen <strong>+ Tilf&oslash;j konto</strong>.</p>
+  <div class="mockup" style="background:var(--hybird-sand);">
+    <div class="mockup-bar">
+      <span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span>
+      <div class="mockup-url">hybird-bms-demo.onrender.com</div>
+    </div>
+    <div style="padding:20px;color:var(--text-dark);">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div style="background:var(--hybird-dark);color:var(--hybird-sand);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">hy</div>
+        <div><div style="font-weight:700;">Hybird BMS</div><div style="font-size:0.7em;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Live Dashboard</div></div>
+        <div style="flex:1;"></div>
+        <div style="background:var(--hybird-light);color:white;padding:3px 10px;border-radius:10px;font-size:11px;">IDLE</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);">API-Konti</div>
+        <div style="border:1px solid #ccc;padding:5px 12px;border-radius:6px;font-size:12px;">+ Tilf&oslash;j konto</div>
+      </div>
+      <div style="text-align:center;padding:12px;color:var(--text-muted);font-size:12px;font-style:italic;">Ingen konti tilf&oslash;jet endnu</div>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:10px;">
+        <div style="background:var(--hybird-dark);color:white;padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;">Hent alle</div>
+        <span style="font-size:12px;color:var(--text-muted);">Site: <strong>Alle sites</strong></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-number">8</div>
+  <h3>Tilf&oslash;j din API-konto</h3>
+  <p>Klik p&aring; <strong>+ Tilf&oslash;j konto</strong>. Inds&aelig;t:</p>
+  <ol>
+    <li><strong>Kontonavn:</strong> Et genkendeligt navn, f.eks. <code>TS Sommerhus</code></li>
+    <li><strong>Email:</strong> API-brugerens email, f.eks. <code>api-bms@hybird.energy</code></li>
+    <li><strong>API Token:</strong> Den fulde token-streng fra trin 6</li>
+  </ol>
+  <p>Klik <strong>Tilf&oslash;j</strong> og derefter <strong>Hent alle</strong> for at hente data fra Hybird-platformen.</p>
+  <div class="info-box">
+    <strong>Resultat:</strong> Dashboardet viser nu dine sites, breaker sets, forbrug og alarmer hentet direkte fra Hybirds API.
+  </div>
+</div>
+
+<!-- DEL 4 -->
+<h2 class="section-title">Del 4: Direkte API-brug (valgfrit)</h2>
+
+<div class="step">
+  <div class="step-number">9</div>
+  <h3>Autentifikation</h3>
+  <p>Hybirds API bruger <strong>Basic Authentication</strong>. N&aring;r du har en API Token fra platformen, kan du bruge den direkte i HTTP-kald.</p>
+  <div class="info-box">
+    <strong>API-dokumentation:</strong> Kontakt Hybird for fuld API-dokumentation med alle tilg&aelig;ngelige endpoints.
+  </div>
+</div>
+
+<!-- EKSEMPLER -->
+<h2 class="section-title">Eksempler p&aring; API-brugere</h2>
+
+<div class="intro">
+  <p>Typiske eksempler p&aring; API-brugere du kan oprette:</p>
+  <table class="example-table">
+    <tr><th>Brugernavn</th><th>Form&aring;l</th><th>Anbefalet rolle</th></tr>
+    <tr><td><code>API-CTS</code></td><td>Integration med CTS-system</td><td>Observer</td></tr>
+    <tr><td><code>API-BMS</code></td><td>Building Management System</td><td>Observer</td></tr>
+    <tr><td><code>API-Reporting</code></td><td>Automatisk rapportgenerering</td><td>Observer</td></tr>
+    <tr><td><code>API-Dashboard</code></td><td>Eksternt dashboard / visning</td><td>Observer</td></tr>
+    <tr><td><code>API-Config</code></td><td>Konfigurationsstyring (l&aelig;s+skriv)</td><td>Operator</td></tr>
+  </table>
+</div>
+
+</div>
+
+<div class="footer">
+  <div class="logo-footer" style="font-size:1.2em;font-weight:700;color:var(--hybird-dark);">Hybird.</div>
+  API Brugerguide &mdash; April 2026<br>
+  <a href="mailto:support@hybird.energy">support@hybird.energy</a>
+</div>
+
+</body>
+</html>
