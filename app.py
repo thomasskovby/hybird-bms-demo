@@ -294,6 +294,10 @@ threading.Thread(target=_poller, daemon=True).start()
 def index():
     return render_template("dashboard.html")
 
+@app.route("/hjaelp")
+def hjaelp():
+    return render_template("hjaelp.html")
+
 # Account management
 @app.route("/api/accounts", methods=["GET"])
 def get_accounts():
