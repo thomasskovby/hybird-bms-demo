@@ -167,7 +167,7 @@ main{max-width:1400px;margin:0 auto;padding:24px 28px;}
   <div class="topbar-right">
     <div class="live-badge"><div class="dot grey" id="live-dot"></div><span id="live-label">IDLE</span></div>
     <div id="topbar-clock">--:--:--</div>
-    <a href="/hjaelp" target="_blank" style="color:var(--sand);text-decoration:none;font-size:12px;padding:5px 12px;border:1px solid rgba(243,238,229,0.25);border-radius:20px;opacity:0.85;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">Hjælp</a>
+    <a href="/hjaelp" target="_blank" style="color:#F3EEE5;text-decoration:none;font-size:11px;font-weight:600;padding:5px 14px;background:var(--dark-green);border-radius:20px;letter-spacing:0.5px;">? Hjælp</a>
   </div>
 </div>
 
@@ -276,7 +276,7 @@ let selectedGaugeBsId=null;
 function updateClock(){document.getElementById('topbar-clock').textContent=new Date().toLocaleTimeString('da-DK');}
 setInterval(updateClock,1000);updateClock();
 
-/* ââ Gauge helper ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Gauge helper Ã¢ÂÂÃ¢ÂÂ */
 function makeGaugeSVG(pct,cls){
   // Semi-circle gauge: arc from 180 to 0 degrees
   const r=60,cx=80,cy=75;
@@ -384,7 +384,7 @@ async function loadGaugeHistory(bsId){
   }catch(e){}
 }
 
-/* ââ Alerts + Temperature ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Alerts + Temperature Ã¢ÂÂÃ¢ÂÂ */
 function renderAlertsAndTemp(alertsArr, breakersArr){
   const el=document.getElementById('alerts-temp-list');
   let html='';
@@ -414,7 +414,7 @@ function renderAlertsAndTemp(alertsArr, breakersArr){
   el.innerHTML=html;
 }
 
-/* ââ View Management ââ */
+/* Ã¢ÂÂÃ¢ÂÂ View Management Ã¢ÂÂÃ¢ÂÂ */
 function showDefaultView(){
   currentView='default';
   document.getElementById('default-view').style.display='';
@@ -494,7 +494,7 @@ async function loadBreakerHistory(breakerId){
   }catch(e){}
 }
 
-/* ââ Consumption history for default view ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Consumption history for default view Ã¢ÂÂÃ¢ÂÂ */
 async function loadConsumptionHistory(){
   // Load from first VM breaker set with data, or first breaker
   const vms=allBreakerSetsData.filter(bs=>bs.virtual_meter);
@@ -524,7 +524,7 @@ async function loadConsumptionHistory(){
   }
 }
 
-/* ââ Account Management ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Account Management Ã¢ÂÂÃ¢ÂÂ */
 function renderAccounts(accountsList){
   const el=document.getElementById('accounts-list');
   if(!accountsList||!accountsList.length){el.innerHTML='<div class="no-data" style="padding:10px">Ingen konti tilfojet endnu</div>';return;}
@@ -577,7 +577,7 @@ async function removeAccount(id){
   if(!accts||!accts.length){setSyncStatus('idle','Tilfoej en konto og klik "Hent alle"');}
 }
 
-/* ââ Site Selector ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Site Selector Ã¢ÂÂÃ¢ÂÂ */
 function toggleSiteSelector(acctId){
   const panel=document.getElementById('sites-panel-'+acctId);
   if(!panel)return;
@@ -618,7 +618,7 @@ async function setSiteFilter(acctId,siteId){
   await loadSiteSelector(acctId);
 }
 
-/* ââ Breaker Selector (STAYS OPEN on selection) ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Breaker Selector (STAYS OPEN on selection) Ã¢ÂÂÃ¢ÂÂ */
 function toggleBreakerSelector(acctId){
   const panel=document.getElementById('breakers-panel-'+acctId);
   if(!panel)return;
@@ -765,7 +765,7 @@ async function quickBSFilter(acctId,mode){
   await refreshBreakerSets();
 }
 
-/* ââ Sync ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Sync Ã¢ÂÂÃ¢ÂÂ */
 async function syncAccount(id){
   setSyncStatus('syncing','Henter fra konto...');
   const d=await(await fetch('/api/sync/'+id,{method:'POST'})).json();
