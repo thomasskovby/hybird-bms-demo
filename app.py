@@ -7,6 +7,7 @@ Understotter flere base URLs og API tokens samtidigt.
 """
 
 from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 from datetime import datetime
 import requests as req
 import threading
@@ -16,6 +17,14 @@ import base64
 import uuid
 
 app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": [
+    "https://hybird-apps-dev.web.app",
+    "https://hybird-apps.web.app",
+    "https://hybird-bms-demo.onrender.com",
+    "http://localhost:5000",
+    "http://localhost:8000",
+    "http://127.0.0.1:5000",
+]}})
 
 # -- In-memory store (merged from all accounts) --
 sites        = {}   # site_id -> {name, address, lat, lng, controllers, account_id}
