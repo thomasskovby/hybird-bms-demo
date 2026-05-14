@@ -313,7 +313,8 @@ async function renderGauges(bsSets){
   if(!vms.length){grid.innerHTML='<div class="no-data" style="grid-column:1/-1;padding:20px;">Ingen virtuelle maalere valgt (vaelg i Breakers-menuen)</div>';return;}
 
   let html='';
-  const maxPw=Math.max(10000,...vms.map(v=>(v.consumption?.avg_total_active_power_w||0)*1.2));
+  const observedMaxPw = Math.max(...vms.map(v => (v.consumption || {}).avg_total_active_power_w || 0));
+  const maxPw = Math.max(observedMaxPw * 1.2, 100);
   vms.forEach(bs=>{
     const c=bs.consumption||{};
     const pw=c.avg_total_active_power_w||0;
